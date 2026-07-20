@@ -20,6 +20,44 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## AEM Secrets
+
+Do not commit `app/service-token.json`.
+
+For local development, keep a private `app/service-token.json` on your machine, or set one of these environment variables:
+
+- `AEM_SERVICE_TOKEN_JSON`: the full Adobe service token JSON serialized into one line
+- `AEM_ACCESS_TOKEN`: a pre-issued bearer token for local testing
+- `AEM_HOST`: your AEM host, for example `https://author-xxxx.adobeaemcloud.com`
+- `AEM_GRAPHQL_PROJECT`: optional, defaults to `wknd-shared`
+
+For CI, store the secret in your CI provider and expose it as `AEM_SERVICE_TOKEN_JSON`.
+
+GitHub Actions example:
+
+```yaml
+env:
+	AEM_HOST: ${{ secrets.AEM_HOST }}
+	AEM_GRAPHQL_PROJECT: wknd-shared
+	AEM_SERVICE_TOKEN_JSON: ${{ secrets.AEM_SERVICE_TOKEN_JSON }}
+```
+
+## GitHub Pages
+
+This project is configured to publish a static export to GitHub Pages from `.github/workflows/deploy-github-pages.yml`.
+
+Required repository secrets:
+
+- `AEM_HOST`
+- `AEM_SERVICE_TOKEN_JSON`
+- `AEM_GRAPHQL_PROJECT` (optional, defaults to `wknd-shared` in the workflow)
+
+Notes:
+
+- The AEM content is fetched at build time in CI, then emitted as static files in `out/`.
+- GitHub Pages does not run a Next.js server, so any server-side AEM fetches happen only during the build.
+- If AEM content changes, redeploy GitHub Pages to rebuild the static output.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

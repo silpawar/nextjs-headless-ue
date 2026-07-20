@@ -1,0 +1,428 @@
+
+.caravan-form-steps {
+  margin: 24px 0 36px;
+  display: grid;
+  gap: 22px;
+}
+
+.caravan-form-step {
+  width: min(930px, 100%);
+  background: #f7f5f1;
+  border: 0;
+  border-radius: 28px;
+  padding: 30px 28px 26px;
+  box-shadow: none;
+
+  h3 {
+    margin: 0 0 28px;
+    font-size: clamp(2rem, 3vw, 2.25rem);
+    line-height: 1.25;
+    color: #0f2a73;
+  }
+
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: #ffd400;
+    color: #0a0a0a;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+    &:hover {
+      background: #eec600;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(255, 212, 0, 0.28);
+    }
+  }
+}
+
+.caravan-step-cta {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: #ffd400;
+  color: #0a0a0a;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.caravan-step-cta:hover {
+  background: #eec600;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 212, 0, 0.28);
+}
+
+.caravan-form-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 38px;
+}
+
+.caravan-confirm-card {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.caravan-confirm-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.caravan-confirm-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #262626;
+}
+
+.caravan-confirm-subtitle {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #555;
+}
+
+.caravan-confirm-illustration {
+  width: min(360px, 100%);
+  margin: 12px 0 10px;
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+.caravan-shadow {
+  fill: #132c78;
+}
+
+.caravan-body,
+.caravan-line,
+.caravan-wheel {
+  fill: none;
+  stroke: #132c78;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.caravan-door {
+  fill: none;
+  stroke: #1f7df0;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.caravan-wheel {
+  fill: #f7f5f1;
+}
+
+.caravan-link-button {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #1672f3;
+  font-size: 0.98rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.caravan-agreement {
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  margin-bottom: 30px;
+
+  h4 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: #0f2a73;
+  }
+
+  a {
+    color: #1672f3;
+    text-decoration: underline;
+  }
+}
+
+.caravan-agreement-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    align-items: start;
+    color: #232323;
+  }
+
+  ul {
+    margin: 8px 0 0;
+    padding-left: 20px;
+  }
+}
+
+.caravan-bullet {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    fill: #132c78;
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+.caravan-agreement-note {
+  margin: 0;
+  max-width: 760px;
+  color: #303030;
+  line-height: 1.45;
+}
+
+.caravan-step-cta-confirm {
+  justify-self: start;
+}
+
+.caravan-step-cta-usage {
+  justify-self: start;
+}
+
+.caravan-step-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.caravan-step-actions-dual {
+  margin-top: 6px;
+}
+
+.caravan-step-back {
+  border: 2px solid #f0c400;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0f2a73;
+  padding: 12px 26px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.caravan-usage-flow {
+  display: grid;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+
+.caravan-usage-panel {
+  display: grid;
+  gap: 22px;
+  background: #f7f5f1;
+  border-radius: 28px;
+  padding: 14px 0 0;
+}
+
+.caravan-usage-panel-compact {
+  gap: 16px;
+}
+
+.caravan-usage-section-header {
+  display: grid;
+  gap: 10px;
+}
+
+.caravan-usage-section-header-compact {
+  gap: 8px;
+}
+
+.caravan-usage-question {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #232323;
+}
+
+.caravan-usage-helper,
+.caravan-usage-link {
+  font-size: 0.95rem;
+}
+
+.caravan-usage-helper {
+  margin: 0;
+  color: #757575;
+  line-height: 1.45;
+}
+
+.caravan-usage-link {
+  color: #1672f3;
+  text-decoration: underline;
+}
+
+.caravan-usage-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.caravan-usage-grid-four {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caravan-usage-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.caravan-choice-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  align-items: start;
+  min-height: 66px;
+  padding: 16px 18px;
+  border: 1px solid #b9bec8;
+  border-radius: 14px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.caravan-choice-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.caravan-choice-indicator {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #c5cad1;
+  border-radius: 50%;
+  margin-top: 2px;
+  background: #ffffff;
+}
+
+.caravan-choice-copy {
+  display: grid;
+  gap: 4px;
+  color: #232323;
+
+  strong {
+    font-size: 0.98rem;
+  }
+
+  small {
+    font-size: 0.95rem;
+    color: #7a7f89;
+  }
+}
+
+.caravan-choice-card-selected {
+  border: 2px solid #1672f3;
+  padding: 15px 17px;
+}
+
+.caravan-choice-card-selected .caravan-choice-indicator {
+  border-color: #1672f3;
+  box-shadow: inset 0 0 0 4px #1672f3;
+}
+
+.caravan-percentage-input {
+  width: min(248px, 100%);
+  min-height: 46px;
+  border: 1px solid #b9bec8;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 1rem;
+  color: #232323;
+  background: #ffffff;
+}
+
+.caravan-form-field {
+  display: grid;
+  gap: 10px;
+
+  span {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #232323;
+  }
+
+  select {
+    appearance: none;
+    width: 100%;
+    min-height: 62px;
+    border: 1px solid #aeb4bd;
+    border-radius: 16px;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12' viewBox='0 0 18 12' fill='none'%3E%3Cpath d='M2 2.25L9 9.25L16 2.25' stroke='%239CA3AF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: right 18px center;
+    background-repeat: no-repeat;
+    padding: 0 50px 0 18px;
+    font-size: 1rem;
+    color: #1a1a1a;
+  }
+
+  select:invalid {
+    color: #9ca3af;
+  }
+}
+
+.caravan-form-success {
+  border-color: #cbe7cc;
+  background: linear-gradient(145deg, #f5fff6 0%, #ecfaef 100%);
+
+  p {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #1f4f28;
+  }
+}
+
+@media (max-width: 768px) {
+  .caravan-form-step {
+    padding: 24px 20px 22px;
+    border-radius: 22px;
+
+    h3 {
+      margin-bottom: 22px;
+    }
+  }
+
+  .caravan-form-fields {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .caravan-agreement-list > li {
+    grid-template-columns: 16px 1fr;
+  }
+
+  .caravan-usage-grid-four,
+  .caravan-usage-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .caravan-step-actions {
+    flex-wrap: wrap;
+  }
+}
