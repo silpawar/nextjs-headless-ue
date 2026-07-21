@@ -1,5 +1,5 @@
 'use client';
-
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useState } from 'react';
 import type {
   CaravanContentResponseData,
@@ -61,6 +61,11 @@ export default function CaravanFormClient({
   ];
 
   return (
+    <HelmetProvider>
+        <Helmet>
+					<meta name="urn:adobe:aue:system:aemconnection" content={`aem:${process.env.NEXT_PUBLIC_AEM_CONNECTION}`}/>
+					{ process.env.NEXT_PUBLIC_SERVICE && <meta name="urn:adobe:aue:config:service" content={`service:${process.env.NEXT_PUBLIC_SERVICE}`}/> }
+				</Helmet>
     <div className="caravan-form-steps">
       {steps.map((step) => {
         const isVisible = activeStep === step.id;
@@ -380,5 +385,6 @@ export default function CaravanFormClient({
         </div>
       ) : null}
     </div>
+    </HelmetProvider>
   );
 }
