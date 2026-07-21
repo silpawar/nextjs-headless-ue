@@ -1,11 +1,13 @@
 'use client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type {
   CaravanContentResponseData,
   CaravanFormModel,
 } from '@/app/types/ContentTypes';
 import { mapJsonRichText } from './utils/renderRichText';
+import { useUniversalEditorMode } from './lib/useUniversalEditorMode';
 
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
@@ -30,7 +32,18 @@ const fallbackContent: CaravanFormModel = {
 export default function CaravanFormClient({
   caravanData,
 }: CaravanFormClientProps) {
-  const [activeStep, setActiveStep] = useState(1);
+  const isEditing = useUniversalEditorMode();
+  const searchParams = useSearchParams();
+  const [activeStep, setActiveStep] = useState<number>(() => {
+    if (!isEditing) {
+      return 1;
+    }
+
+    const stepParam = searchParams.get('step');
+    const parsedStep = Number.parseInt(stepParam ?? '', 10);
+    return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
+  });
+
   const caravanContent =
     caravanData?.caravanContentByPath?.item ??
     caravanData?.caravanformmodelByPath?.item ??
