@@ -3,8 +3,7 @@ import "./globals.css";
 
 const aueConnection =
   process.env.NEXT_PUBLIC_AEM_CONNECTION ?? process.env.NEXT_PUBLIC_AEM_HOST;
-const aueService =
-  process.env.NEXT_PUBLIC_SERVICE ?? 'https://universal-editor-service.adobe.io';
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,14 +23,10 @@ export default function RootLayout({
           <meta
             name="urn:adobe:aue:system:aemconnection"
             content={`aem:${aueConnection}`}
+            data-rh="true"
           />
         ) : null}
-        {aueService ? (
-          <meta
-            name="urn:adobe:aue:config:service"
-            content={`service:${aueService}`}
-          />
-        ) : null}
+   
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
