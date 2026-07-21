@@ -32,7 +32,7 @@ export default function CaravanFormClient({
   caravanData,
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode();
-  console.log('isEditing', isEditing);
+ console.log('isEditing', isEditing);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditing) {
       return 1;
@@ -84,7 +84,7 @@ console.log("activeStep", activeStep);
 				</Helmet>
     <div className="caravan-form-steps">
       {steps.map((step) => {
-        const isVisible = isEditing || activeStep === step.id;
+        const isVisible = activeStep === step.id;
 
         return isVisible ? (
           <div key={step.id} className="caravan-form-step" data-step={step.id}>
