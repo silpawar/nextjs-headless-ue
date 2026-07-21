@@ -13,6 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+         <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
