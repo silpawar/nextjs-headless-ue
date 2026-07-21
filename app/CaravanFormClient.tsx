@@ -84,7 +84,7 @@ console.log("activeStep", activeStep);
 				</Helmet>
     <div className="caravan-form-steps">
       {steps.map((step) => {
-        const isVisible = activeStep === step.id;
+        const isVisible = isEditing || activeStep === step.id;
 
         return isVisible ? (
           <div key={step.id} className="caravan-form-step" data-step={step.id}>
