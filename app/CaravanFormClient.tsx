@@ -1,7 +1,6 @@
 'use client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import type {
   CaravanContentResponseData,
   CaravanFormModel,
@@ -33,19 +32,21 @@ export default function CaravanFormClient({
   caravanData,
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode();
-  console.log('isEditing in caravan', isEditing);
-  const searchParams = useSearchParams();
-  console.log('searchParams', searchParams);
+  console.log('isEditing', isEditing);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditing) {
       return 1;
     }
 
-    const stepParam = searchParams.get('step');
+    if (typeof window === 'undefined') {
+      return 1;
+    }
+
+    const stepParam = new URLSearchParams(window.location.search).get('step');
     const parsedStep = Number.parseInt(stepParam ?? '', 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-console.log('activeStep', activeStep);
+console.log("activeStep", activeStep);
   const caravanContent =
     caravanData?.caravanContentByPath?.item ??
     caravanData?.caravanformmodelByPath?.item ??
