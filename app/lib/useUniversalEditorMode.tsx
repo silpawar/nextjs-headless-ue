@@ -25,6 +25,6 @@ export function useUniversalEditorMode(): boolean {
       document.removeEventListener('aue:ui-preview', handlePreviewMode);
     };
   }, []);
-
+console.log("isEditMode", isEditMode);
   return isEditMode;
 }
