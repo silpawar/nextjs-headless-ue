@@ -15,19 +15,6 @@ type CaravanFormClientProps = {
 const caravanResource =
   'urn:aemconnection:/content/dam/wknd-shared/caravan-content/jcr:content/data/master';
 
-const fallbackContent: CaravanFormModel = {
-  _path: '/content/dam/wknd-shared/caravan-content',
-  _id: 'fallback',
-  _variation: 'master',
-  step1heading: "Let's find your caravan",
-  step1cta: 'Continue to step 2',
-  step2heading: "Let's find your caravan - confirm",
-  step2cta: 'Continue to step 3',
-  step3heading: "Let's set up the basics",
-  step3cta: 'Finish',
-  finalstepmessage: [],
-};
-
 export default function CaravanFormClient({
   caravanData,
   htmlContent,
@@ -49,8 +36,7 @@ export default function CaravanFormClient({
   });
   const caravanContent =
     caravanData?.caravanContentByPath?.item ??
-    caravanData?.caravanformmodelByPath?.item ??
-    fallbackContent;
+    caravanData?.caravanformmodelByPath?.item as CaravanFormModel;
 
   const steps = [
     {
