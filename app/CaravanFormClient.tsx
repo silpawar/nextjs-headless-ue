@@ -9,6 +9,7 @@ import { useUniversalEditorMode } from './lib/useUniversalEditorMode';
 
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
+  htmlContent?: string;
 };
 
 const caravanResource =
@@ -29,6 +30,7 @@ const fallbackContent: CaravanFormModel = {
 
 export default function CaravanFormClient({
   caravanData,
+  htmlContent,
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode();
  console.log('isEditing', isEditing);
@@ -45,7 +47,6 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? '', 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-console.log("activeStep", activeStep);
   const caravanContent =
     caravanData?.caravanContentByPath?.item ??
     caravanData?.caravanformmodelByPath?.item ??
@@ -393,6 +394,13 @@ console.log("activeStep", activeStep);
               'Congratulations! You have done it!'}
           </div>
         </div>
+      ) : null}
+
+      {htmlContent ? (
+        <section className="caravan-form-step">
+          <h3>Experience Fragmet content</h3>
+          <div dangerouslySetInnerHTML={{ __html: htmlContent ?? "" }} />
+        </section>
       ) : null}
     </div>
   );

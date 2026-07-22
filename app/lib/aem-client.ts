@@ -195,6 +195,30 @@ async function fetchFromAEM<T>(
   return json.data;
 }
 
+//https://author-p9606-e71941.adobeaemcloud.com/aem/experience-fragments.html/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia
+
+
+export async function fetchXf(): Promise<string> {
+  const url = `${AEM_BASE}/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master.plain.html`;
+  const developerConsoleCredentials = getDeveloperConsoleCredentials();
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${await getAccessToken(developerConsoleCredentials)}`,
+      Accept: 'text/html',
+      'ngrok-skip-browser-warning': 'true',
+    },
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`AEM fetchXf failed: ${res.status} ${url} ${body}`);
+  }
+
+  return res.text();
+}
+
 export async function queryAEM<T>(
   queryName: string,
   variables?: Record<string, unknown>

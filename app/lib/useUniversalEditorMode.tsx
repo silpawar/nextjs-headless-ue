@@ -16,7 +16,7 @@ export function useUniversalEditorMode(): boolean {
 
   useEffect(() => {
     const handleEditMode = (): void => setIsEditMode(true);
-    const handlePreviewMode = (): void => setIsEditMode(false);
+    const handlePreviewMode = (): void => setIsEditMode(true);
 
     document.addEventListener('aue:ui-edit', handleEditMode);
     document.addEventListener('aue:ui-preview', handlePreviewMode);
