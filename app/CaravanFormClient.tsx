@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type {
   CaravanContentResponseData,
   CaravanFormModel,
@@ -10,6 +10,7 @@ import { useUniversalEditorMode } from './lib/useUniversalEditorMode';
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
   htmlContent?: string;
+  xfPath?: string;
 };
 
 const caravanResource =
@@ -18,6 +19,7 @@ const caravanResource =
 export default function CaravanFormClient({
   caravanData,
   htmlContent,
+  xfPath,
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode();
  console.log('isEditing', isEditing);
@@ -37,28 +39,70 @@ export default function CaravanFormClient({
   const caravanContent =
     caravanData?.caravanContentByPath?.item ??
     caravanData?.caravanformmodelByPath?.item as CaravanFormModel;
+  const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(htmlContent);
+  const [isXfLoading, setIsXfLoading] = useState(Boolean(xfPath && !htmlContent));
+
+  useEffect(() => {
+    if (!xfPath || htmlContent) {
+      setIsXfLoading(false);
+      return;
+    }
+
+    let ignore = false;
+    const requestedXfPath = xfPath;
+    setIsXfLoading(true);
+
+    async function loadExperienceFragment() {
+      try {
+        const response = await fetch(
+          `/api/experience-fragment?path=${encodeURIComponent(requestedXfPath)}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`XF API failed: ${response.status}`);
+        }
+
+        const html = await response.text();
+        if (!ignore) {
+          setXfHtmlContent(html);
+        }
+      } catch (error) {
+        console.error('Error fetching XF content from API:', error);
+      } finally {
+        if (!ignore) {
+          setIsXfLoading(false);
+        }
+      }
+    }
+
+    loadExperienceFragment();
+
+    return () => {
+      ignore = true;
+    };
+  }, [xfPath, htmlContent]);
 
   const steps = [
     {
       id: 1,
       headingProp: 'step1heading',
       ctaProp: 'step1cta',
-      heading: caravanContent.step1heading,
-      cta: caravanContent.step1cta,
+      heading: caravanContent?.step1heading,
+      cta: caravanContent?.step1cta,
     },
     {
       id: 2,
       headingProp: 'step2heading',
       ctaProp: 'step2cta',
-      heading: caravanContent.step2heading,
-      cta: caravanContent.step2cta,
+      heading: caravanContent?.step2heading,
+      cta: caravanContent?.step2cta,
     },
     {
       id: 3,
       headingProp: 'step3heading',
       ctaProp: 'step3cta',
-      heading: caravanContent.step3heading,
-      cta: caravanContent.step3cta,
+      heading: caravanContent?.step3heading,
+      cta: caravanContent?.step3cta,
     },
   ];
 
@@ -382,10 +426,17 @@ export default function CaravanFormClient({
         </div>
       ) : null}
 
-      {htmlContent ? (
+      {isXfLoading || xfHtmlContent ? (
         <section className="caravan-form-step">
           <h3>Experience Fragmet content</h3>
-          <div dangerouslySetInnerHTML={{ __html: htmlContent ?? "" }} />
+          {isXfLoading ? (
+            <div className="caravan-xf-loader" role="status" aria-live="polite">
+              <span className="caravan-xf-spinner" aria-hidden="true" />
+              Loading experience fragment…
+            </div>
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: xfHtmlContent! }} />
+          )}
         </section>
       ) : null}
     </div>

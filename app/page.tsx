@@ -1,4 +1,4 @@
-import { fetchXf, queryAEM } from './lib/aem-client';
+import { queryAEM } from './lib/aem-client';
 import CaravanFormClient from '@/app/CaravanFormClient';
 import type { CaravanContentResponseData } from '@/app/types/ContentTypes';
 import './page.css';
@@ -14,19 +14,13 @@ export default async function Home() {
   } catch (error) {
     console.error('Error fetching data:', error);
   }
-  let htmlContent: string | undefined = undefined;
-  try {
-     htmlContent = await fetchXf();
-    console.log('Fetched XF content:', htmlContent);
-  } catch (error) {
-    console.error('Error fetching XF content:', error);
-  }
-
-
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <CaravanFormClient caravanData={caravanData} htmlContent={htmlContent} />
+        <CaravanFormClient
+          caravanData={caravanData}
+          xfPath="/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master"
+        />
       </main>
     </div>
   );

@@ -397,6 +397,30 @@
   }
 }
 
+.caravan-xf-loader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.caravan-xf-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #4b5563;
+  border-radius: 50%;
+  animation: caravan-xf-spin 0.7s linear infinite;
+}
+
+@keyframes caravan-xf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .caravan-form-step {
     padding: 24px 20px 22px;
