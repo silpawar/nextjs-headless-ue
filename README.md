@@ -22,33 +22,10 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## AEM Configuration
 
-Set these environment variables for local development and CI:
+Set these environment variables for local development:
 
 - `AEM_HOST`: your AEM host, for example `https://publish-xxxx.adobeaemcloud.com`
 - `AEM_GRAPHQL_PROJECT`: optional, defaults to `wknd-shared`
-
-GitHub Actions example:
-
-```yaml
-env:
-	AEM_HOST: ${{ secrets.AEM_HOST }}
-	AEM_GRAPHQL_PROJECT: wknd-shared
-```
-
-## GitHub Pages
-
-This project is configured to publish a static export to GitHub Pages from `.github/workflows/deploy-github-pages.yml`.
-
-Required repository secrets:
-
-- `AEM_HOST`
-- `AEM_GRAPHQL_PROJECT` (optional, defaults to `wknd-shared` in the workflow)
-
-Notes:
-
-- The AEM content is fetched at build time in CI, then emitted as static files in `out/`.
-- GitHub Pages does not run a Next.js server, so any server-side AEM fetches happen only during the build.
-- If AEM content changes, redeploy GitHub Pages to rebuild the static output.
 
 ## Learn More
 
