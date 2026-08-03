@@ -48,3 +48,42 @@ export interface CaravanContentResponseData {
 export type CaravanFormModelByPathApiResponse =
   AemGraphQlResponse<CaravanFormModelByPathData>;
 
+// Parent container CFM schema
+export interface InsuranceJourneyModelByPathData {
+  insuranceJourneyModelByPath: InsuranceJourneyModelByPath;
+}
+
+export interface InsuranceJourneyModelByPath {
+  item: InsuranceJourneyModel;
+}
+
+export interface InsuranceJourneyModel {
+  step1: Step1Model;
+  step2: Step2Model;
+  step3: Step3Model;
+}
+
+export interface Step1Model {
+  _path: string;
+  step1Heading: string;
+  step1SearchCta: string;
+  step1ContinueCta: string;
+}
+
+export interface Step2Model {
+  _path: string;
+  step2Heading: string;
+  step2BackCta: string;
+  step2ContinueCta: string;
+}
+
+export interface Step3Model {
+  _path: string;
+  step3Heading: string;
+  step3BackCta: string;
+  step3ContinueCta: string;
+  completionMessage: AemRichTextBlock[];
+}
+
+export type InsuranceJourneyModelByPathApiResponse =
+  AemGraphQlResponse<InsuranceJourneyModelByPathData>;
