@@ -58,6 +58,7 @@ export interface InsuranceJourneyModelByPath {
 }
 
 export interface InsuranceJourneyModel {
+  _path?: string;
   step1: Step1Model;
   step2: Step2Model;
   step3: Step3Model;

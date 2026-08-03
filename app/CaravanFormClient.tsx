@@ -16,7 +16,7 @@ type CaravanFormClientProps = {
   insuranceJourneyData?: InsuranceJourneyModelByPathData | null;
 };
 
-const caravanResource =
+const defaultInsuranceJourneyResource =
   "urn:aemconnection:/content/dam/wknd-shared/caravan/caravan-insurance-journey/jcr:content/data/master";
 
 export default function CaravanFormClient({
@@ -51,6 +51,9 @@ export default function CaravanFormClient({
   );
   const insuranceJourneyContent = insuranceJourneyData
     ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
+  const insuranceJourneyResource = insuranceJourneyContent?._path
+    ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
+    : defaultInsuranceJourneyResource;
 
   useEffect(() => {
     if (!xfPath || htmlContent) {
@@ -125,7 +128,9 @@ export default function CaravanFormClient({
     <div className="caravan-form-steps">
       {steps.map((step) => {
         const isVisible = activeStep === step.id;
-        const insuranceJourneyStepResource = `urn:aemconnection:${step.path}/jcr:content/data/master`;
+        const insuranceJourneyStepResource = step.path
+          ? `urn:aemconnection:${step.path}/jcr:content/data/master`
+          : insuranceJourneyResource;
 
         return isVisible ? (
           <div key={step.id} className="caravan-form-step" data-step={step.id}>
@@ -511,7 +516,7 @@ export default function CaravanFormClient({
                     ? "caravan-step-cta caravan-step-cta-usage"
                     : "caravan-step-cta"
               }
-              data-aue-resource={caravanResource}
+              data-aue-resource={insuranceJourneyStepResource}
               data-aue-type="text"
               data-aue-prop={step.continueCtaProp}
               data-aue-filter="cf"
@@ -531,8 +536,12 @@ export default function CaravanFormClient({
           data-step="success"
         >
           <div
-            data-aue-resource={caravanResource}
-            data-aue-prop="finalstepmessage"
+            data-aue-resource={
+              steps[2]?.path
+                ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
+                : insuranceJourneyResource
+            }
+            data-aue-prop="completionMessage"
             data-aue-type="richtext"
             data-aue-filter="cf"
           >
