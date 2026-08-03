@@ -1,14 +1,14 @@
-import 'server-only';
+import "server-only";
 
 const AEM_BASE = process.env.AEM_HOST!;
-const AEM_GRAPHQL_PROJECT = process.env.AEM_GRAPHQL_PROJECT ?? 'wknd-shared';
+const AEM_GRAPHQL_PROJECT = process.env.AEM_GRAPHQL_PROJECT ?? "wknd-shared";
 
 async function fetchFromAEM<T>(
   queryName: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<T> {
   if (!queryName) {
-    throw new Error('AEM queryName is required for persisted queries.');
+    throw new Error("AEM queryName is required for persisted queries.");
   }
 
   const params = Object.entries(variables ?? {})
@@ -18,20 +18,21 @@ async function fetchFromAEM<T>(
 
       // AEM persisted queries expect repository paths with literal '/'.
       const encodedValue =
-        typeof v === 'string' && value.startsWith('/')
+        typeof v === "string" && value.startsWith("/")
           ? value
           : encodeURIComponent(value);
 
       return `;${k}=${encodedValue}`;
     })
-    .join('');
+    .join("");
 
   const url = `${AEM_BASE}/graphql/execute.json/${AEM_GRAPHQL_PROJECT}/${encodeURIComponent(queryName)}${params}`;
+  console.log(`Fetching AEM GraphQL query: URL: ${url}`);
 
   const res = await fetch(url, {
     headers: {
-      'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': 'true',
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
     },
     next: { revalidate: 3600 },
   });
@@ -52,7 +53,7 @@ async function fetchFromAEM<T>(
 
   if (json.errors?.length) {
     throw new Error(
-      `AEM GraphQL errors for ${queryName}: ${JSON.stringify(json.errors)}`
+      `AEM GraphQL errors for ${queryName}: ${JSON.stringify(json.errors)}`,
     );
   }
 
@@ -65,25 +66,27 @@ async function fetchFromAEM<T>(
 
 export async function fetchExperienceFragment(path: string): Promise<string> {
   if (!path) {
-    throw new Error('Experience Fragment path is required.');
+    throw new Error("Experience Fragment path is required.");
   }
 
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const url = normalizedPath.endsWith('.html')
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = normalizedPath.endsWith(".html")
     ? `${AEM_BASE}${normalizedPath}`
     : `${AEM_BASE}${normalizedPath}.plain.html`;
 
   const res = await fetch(url, {
     headers: {
-      Accept: 'text/html',
-      'ngrok-skip-browser-warning': 'true',
+      Accept: "text/html",
+      "ngrok-skip-browser-warning": "true",
     },
     next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`AEM Experience Fragment fetch failed: ${res.status} ${url} ${body}`);
+    throw new Error(
+      `AEM Experience Fragment fetch failed: ${res.status} ${url} ${body}`,
+    );
   }
 
   return res.text();
@@ -91,13 +94,13 @@ export async function fetchExperienceFragment(path: string): Promise<string> {
 
 export async function fetchXf(): Promise<string> {
   return fetchExperienceFragment(
-    '/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master'
+    "/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master",
   );
 }
 
 export async function queryAEM<T>(
   queryName: string,
-  variables?: Record<string, unknown>
+  variables?: Record<string, unknown>,
 ): Promise<T> {
   return fetchFromAEM<T>(queryName, variables);
 }
