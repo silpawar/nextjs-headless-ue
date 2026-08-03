@@ -98,6 +98,7 @@ export default function CaravanFormClient({
       headingProp: "step1Heading",
       searchCtaProp: "step1SearchCta",
       continueCtaProp: "step1ContinueCta",
+      path: insuranceJourneyContent?.step1._path,
       heading: insuranceJourneyContent?.step1.step1Heading,
       searchCta: insuranceJourneyContent?.step1.step1SearchCta,
       continueCta: insuranceJourneyContent?.step1.step1ContinueCta,
@@ -106,6 +107,7 @@ export default function CaravanFormClient({
       id: 2,
       headingProp: "step2Heading",
       continueCtaProp: "step2ContinueCta",
+      path: insuranceJourneyContent?.step2._path,
       heading: insuranceJourneyContent?.step2.step2Heading,
       continueCta: insuranceJourneyContent?.step2.step2ContinueCta,
     },
@@ -113,6 +115,7 @@ export default function CaravanFormClient({
       id: 3,
       headingProp: "step3Heading",
       continueCtaProp: "step3ContinueCta",
+      path: insuranceJourneyContent?.step3._path,
       heading: insuranceJourneyContent?.step3.step3Heading,
       continueCta: insuranceJourneyContent?.step3.step3ContinueCta,
     },
@@ -122,11 +125,12 @@ export default function CaravanFormClient({
     <div className="caravan-form-steps">
       {steps.map((step) => {
         const isVisible = activeStep === step.id;
+        const insuranceJourneyStepResource = `urn:aemconnection:${step.path}/jcr:content/data/master`;
 
         return isVisible ? (
           <div key={step.id} className="caravan-form-step" data-step={step.id}>
             <h3
-              data-aue-resource={caravanResource}
+              data-aue-resource={insuranceJourneyStepResource}
               data-aue-type="text"
               data-aue-prop={step.headingProp}
               data-aue-filter="cf"
