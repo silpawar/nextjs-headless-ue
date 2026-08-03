@@ -4,6 +4,7 @@ import type {
   CaravanContentResponseData,
   CaravanFormModel,
   InsuranceJourneyModelByPathData,
+  InsuranceJourneyModel,
 } from "@/app/types/ContentTypes";
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
@@ -39,17 +40,17 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? "", 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-  const caravanContent =
-    caravanData?.caravanContentByPath?.item ??
-    (caravanData?.caravanformmodelByPath?.item as CaravanFormModel);
+  // const caravanContent =
+  //   caravanData?.caravanContentByPath?.item ??
+  //   (caravanData?.caravanformmodelByPath?.item as CaravanFormModel);
   const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(
     htmlContent,
   );
   const [isXfLoading, setIsXfLoading] = useState(
     Boolean(xfPath && !htmlContent),
   );
-  const insuranceJourneyContent =
-    insuranceJourneyData?.insuranceJourneyModelByPath?.item;
+  const insuranceJourneyContent = insuranceJourneyData
+    ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
 
   useEffect(() => {
     if (!xfPath || htmlContent) {
@@ -531,8 +532,11 @@ export default function CaravanFormClient({
             data-aue-type="richtext"
             data-aue-filter="cf"
           >
-            {mapJsonRichText(caravanContent.finalstepmessage[0]?.json) ??
-              "Congratulations! You have done it!"}
+            {/* {mapJsonRichText(caravanContent.finalstepmessage[0]?.json) ??
+              "Congratulations! You have done it!"} */}
+            {mapJsonRichText(
+              insuranceJourneyContent.step3.completionMessage[0]?.json,
+            ) ?? "Congratulations! You have done it!"}
           </div>
         </div>
       ) : null}

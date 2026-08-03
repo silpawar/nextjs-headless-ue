@@ -1,13 +1,21 @@
 import { queryAEM } from "./lib/aem-client";
 import CaravanFormClient from "@/app/CaravanFormClient";
-import type { CaravanContentResponseData } from "@/app/types/ContentTypes";
+import type {
+  CaravanContentResponseData,
+  InsuranceJourneyModelByPathData,
+} from "@/app/types/ContentTypes";
 import "./page.css";
 
 export default async function Home() {
   let caravanData: CaravanContentResponseData | null = null;
+  let insuranceJourneyData: InsuranceJourneyModelByPathData | null = null;
 
   try {
-    caravanData = await queryAEM<CaravanContentResponseData>(
+    // caravanData = await queryAEM<CaravanContentResponseData>(
+    //   "insurance-journey-content",
+    //   { path: "/content/dam/wknd-shared/caravan/caravan-insurance-journey" },
+    // );
+    insuranceJourneyData = await queryAEM<InsuranceJourneyModelByPathData>(
       "insurance-journey-content",
       { path: "/content/dam/wknd-shared/caravan/caravan-insurance-journey" },
     );
@@ -19,6 +27,7 @@ export default async function Home() {
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         <CaravanFormClient
           caravanData={caravanData}
+          insuranceJourneyData={insuranceJourneyData}
           xfPath="/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master"
         />
       </main>
