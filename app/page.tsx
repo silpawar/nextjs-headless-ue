@@ -6,6 +6,9 @@ import type {
 } from "@/app/types/ContentTypes";
 import "./page.css";
 
+// Add dynamic rendering to test graphQL call is being made on page load
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   let caravanData: CaravanContentResponseData | null = null;
   let insuranceJourneyData: InsuranceJourneyModelByPathData | null = null;
