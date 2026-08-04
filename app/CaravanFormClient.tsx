@@ -125,7 +125,12 @@ export default function CaravanFormClient({
   ];
 
   return (
-    <div className="caravan-form-steps">
+    <div
+      className="caravan-form-steps"
+      data-aue-resource={insuranceJourneyResource}
+      data-aue-type="container"
+      data-aue-label="Insurance Journey"
+    >
       {steps.map((step) => {
         const isVisible = activeStep === step.id;
         const insuranceJourneyStepResource = step.path
