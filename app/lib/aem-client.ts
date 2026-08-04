@@ -34,7 +34,7 @@ async function fetchFromAEM<T>(
       "Content-Type": "application/json",
       "ngrok-skip-browser-warning": "true",
     },
-    next: { revalidate: 3600 },
+    next: { revalidate: 0 },
   });
 
   if (!res.ok) {
