@@ -14,6 +14,7 @@ export default async function Home() {
   let insuranceJourneyData: InsuranceJourneyModelByPathData | null = null;
 
   try {
+    console.log("Fetching data from AEM GraphQL...");
     // caravanData = await queryAEM<CaravanContentResponseData>(
     //   "insurance-journey-content",
     //   { path: "/content/dam/wknd-shared/caravan/caravan-insurance-journey" },
