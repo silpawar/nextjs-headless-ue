@@ -27,8 +27,6 @@ export default function CaravanFormClient({
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode();
   console.log("isEditing", isEditing);
-  const AEM_BASE = process.env.AEM_HOST!;
-  console.log("TEST", AEM_BASE);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditing) {
       return 1;

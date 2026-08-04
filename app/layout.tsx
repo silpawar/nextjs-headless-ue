@@ -4,6 +4,7 @@ import "./globals.css";
 const aueConnection =
   process.env.NEXT_PUBLIC_AEM_CONNECTION ?? process.env.NEXT_PUBLIC_AEM_HOST;
 
+const aem = process.env.AEM_HOST!;
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+        <script
+          src="https://universal-editor-service.adobe.io/cors.js"
+          async
+        ></script>
         {aueConnection ? (
           <meta
             name="urn:adobe:aue:system:aemconnection"
@@ -26,7 +30,7 @@ export default function RootLayout({
             data-rh="true"
           />
         ) : null}
-   
+        <meta name="test" content={`aem:${aem}`} />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
