@@ -1,3 +1,5 @@
+"use client";
+
 import { queryAEM } from "./lib/aem-client";
 import CaravanFormClient from "@/app/CaravanFormClient";
 import type {
