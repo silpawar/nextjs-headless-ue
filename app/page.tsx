@@ -1,4 +1,5 @@
 import { queryAEM } from "./lib/aem-client";
+import { isUniversalEditorRequest } from "./lib/universalEditor";
 import CaravanFormClient from "@/app/CaravanFormClient";
 import type {
   CaravanContentResponseData,
@@ -13,8 +14,15 @@ export default async function Home() {
   let caravanData: CaravanContentResponseData | null = null;
   let insuranceJourneyData: InsuranceJourneyModelByPathData | null = null;
 
+  // Server-side detection of the AEM Universal Editor (author) context.
+  // If true, we are in author mode and make a graphQL call to the AEM author instance (with
+  // authorization) so in-progress / unpublished content is reflected.
+  const isUniversalEditor = await isUniversalEditorRequest();
+
   try {
-    console.log("Fetching data from AEM GraphQL...");
+    console.log(
+      `Fetching data from AEM GraphQL (${isUniversalEditor ? "author" : "publish"})...`,
+    );
     // caravanData = await queryAEM<CaravanContentResponseData>(
     //   "insurance-journey-content",
     //   { path: "/content/dam/wknd-shared/caravan/caravan-insurance-journey" },
@@ -22,6 +30,7 @@ export default async function Home() {
     insuranceJourneyData = await queryAEM<InsuranceJourneyModelByPathData>(
       "insurance-journey-content",
       { path: "/content/dam/wknd-shared/caravan/caravan-insurance-journey" },
+      { authorMode: isUniversalEditor },
     );
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -32,6 +41,7 @@ export default async function Home() {
         <CaravanFormClient
           caravanData={caravanData}
           insuranceJourneyData={insuranceJourneyData}
+          isEditing={isUniversalEditor}
           xfPath="/content/experience-fragments/wknd/language-masters/en/featured/camping-western-australia/master"
         />
       </main>

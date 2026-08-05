@@ -14,6 +14,7 @@ type CaravanFormClientProps = {
   htmlContent?: string;
   xfPath?: string;
   insuranceJourneyData?: InsuranceJourneyModelByPathData | null;
+  isEditing?: boolean;
 };
 
 const defaultInsuranceJourneyResource =
@@ -24,8 +25,9 @@ export default function CaravanFormClient({
   htmlContent,
   xfPath,
   insuranceJourneyData,
+  isEditing: isEditingProp = false,
 }: CaravanFormClientProps) {
-  const isEditing = useUniversalEditorMode();
+  const isEditing = useUniversalEditorMode(isEditingProp);
   console.log("isEditing", isEditing);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditing) {
@@ -93,7 +95,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [xfPath, htmlContent]);
+  }, [xfPath, htmlContent, isEditing]);
 
   const steps = [
     {

@@ -1,15 +1,67 @@
 import "server-only";
 
 const AEM_BASE = process.env.AEM_HOST!;
+const AEM_AUTHOR_BASE = process.env.AEM_AUTHOR_HOST;
 const AEM_GRAPHQL_PROJECT = process.env.AEM_GRAPHQL_PROJECT ?? "wknd-shared";
+
+export type AemRequestOptions = {
+  /**
+   * When `true`, the request targets the AEM author instance
+   * (`AEM_AUTHOR_HOST`) with authorization so that unpublished / in-progress
+   * content is returned. Used when rendering inside the Universal Editor.
+   */
+  authorMode?: boolean;
+};
+
+/**
+ * Resolves the base host to use for a request. Author mode prefers
+ * `AEM_AUTHOR_HOST` and falls back to `AEM_HOST` when it is not configured.
+ */
+function resolveBase(authorMode: boolean): string {
+  if (authorMode) {
+    if (!AEM_AUTHOR_BASE) {
+      console.warn(
+        "Author mode requested but AEM_AUTHOR_HOST is not set; falling back to AEM_HOST.",
+      );
+      return AEM_BASE;
+    }
+    return AEM_AUTHOR_BASE;
+  }
+  return AEM_BASE;
+}
+
+/**
+ * Builds the authorization header for author-instance requests.
+ * Supports a bearer token.
+ */
+function buildAuthHeaders(authorMode: boolean): Record<string, string> {
+  if (!authorMode) {
+    return {};
+  }
+
+  const token = process.env.AEM_AUTHOR_TOKEN;
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+
+  console.warn(
+    "Author mode requested but no AEM author credentials configured " +
+      "(set AEM_AUTHOR_TOKEN).",
+  );
+  return {};
+}
 
 async function fetchFromAEM<T>(
   queryName: string,
   variables?: Record<string, unknown>,
+  options: AemRequestOptions = {},
 ): Promise<T> {
   if (!queryName) {
     throw new Error("AEM queryName is required for persisted queries.");
   }
+
+  const authorMode = options.authorMode ?? false;
+  const base = resolveBase(authorMode);
 
   const params = Object.entries(variables ?? {})
     .filter(([, v]) => v !== undefined && v !== null)
@@ -26,13 +78,16 @@ async function fetchFromAEM<T>(
     })
     .join("");
 
-  const url = `${AEM_BASE}/graphql/execute.json/${AEM_GRAPHQL_PROJECT}/${encodeURIComponent(queryName)}${params}`;
-  console.log(`Fetching AEM GraphQL query: URL: ${url}`);
+  const url = `${base}/graphql/execute.json/${AEM_GRAPHQL_PROJECT}/${encodeURIComponent(queryName)}${params}`;
+  console.log(
+    `Fetching AEM GraphQL query (${authorMode ? "author" : "publish"}): URL: ${url}`,
+  );
 
   const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
       "ngrok-skip-browser-warning": "true",
+      ...buildAuthHeaders(authorMode),
     },
     next: { revalidate: 0 },
   });
@@ -64,22 +119,30 @@ async function fetchFromAEM<T>(
   return json.data;
 }
 
-export async function fetchExperienceFragment(path: string): Promise<string> {
+export async function fetchExperienceFragment(
+  path: string,
+  options: AemRequestOptions = {},
+): Promise<string> {
   if (!path) {
     throw new Error("Experience Fragment path is required.");
   }
 
+  const authorMode = options.authorMode ?? false;
+  const base = resolveBase(authorMode);
+
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = normalizedPath.endsWith(".html")
-    ? `${AEM_BASE}${normalizedPath}`
-    : `${AEM_BASE}${normalizedPath}.plain.html`;
+    ? `${base}${normalizedPath}`
+    : `${base}${normalizedPath}.plain.html`;
 
   const res = await fetch(url, {
     headers: {
       Accept: "text/html",
       "ngrok-skip-browser-warning": "true",
+      ...buildAuthHeaders(authorMode),
     },
-    next: { revalidate: 3600 },
+    // Only cache publish content.
+    next: { revalidate: authorMode ? 0 : 3600 },
   });
 
   if (!res.ok) {
@@ -101,6 +164,7 @@ export async function fetchXf(): Promise<string> {
 export async function queryAEM<T>(
   queryName: string,
   variables?: Record<string, unknown>,
+  options: AemRequestOptions = {},
 ): Promise<T> {
-  return fetchFromAEM<T>(queryName, variables);
+  return fetchFromAEM<T>(queryName, variables, options);
 }
