@@ -8,6 +8,7 @@ import type {
 } from "@/app/types/ContentTypes";
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
+import { INSURANCE_JOURNEY_MODEL_ID } from "./lib/universalEditorModels";
 
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
@@ -130,8 +131,9 @@ export default function CaravanFormClient({
     <div
       className="caravan-form-steps"
       data-aue-resource={insuranceJourneyResource}
-      data-aue-type="container"
+      data-aue-type="component"
       data-aue-label="Insurance Journey"
+      data-aue-model={INSURANCE_JOURNEY_MODEL_ID}
     >
       {steps.map((step) => {
         const isVisible = activeStep === step.id;
