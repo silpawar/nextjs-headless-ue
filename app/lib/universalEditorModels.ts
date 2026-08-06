@@ -1,96 +1,83 @@
-export const INSURANCE_JOURNEY_MODEL_ID = "insurance-journey-steps";
-
 export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
   {
-    id: INSURANCE_JOURNEY_MODEL_ID,
+    id: "insurance-journey-step-1",
     fields: [
       {
-        component: "container",
-        label: "Step 1",
-        name: "step1",
+        component: "text",
+        label: "Heading",
+        name: "step1Heading",
         valueType: "string",
-        collapsible: true,
-        fields: [
-          {
-            component: "text",
-            label: "Heading",
-            name: "step1/step1Heading",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Search CTA",
-            name: "step1/step1SearchCta",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Continue CTA",
-            name: "step1/step1ContinueCta",
-            valueType: "string",
-          },
-        ],
       },
       {
-        component: "container",
-        label: "Step 2",
-        name: "step2",
+        component: "text",
+        label: "Search CTA",
+        name: "step1SearchCta",
         valueType: "string",
-        collapsible: true,
-        fields: [
-          {
-            component: "text",
-            label: "Heading",
-            name: "step2/step2Heading",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Back CTA",
-            name: "step2/step2BackCta",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Continue CTA",
-            name: "step2/step2ContinueCta",
-            valueType: "string",
-          },
-        ],
       },
       {
-        component: "container",
-        label: "Step 3",
-        name: "step3",
+        component: "text",
+        label: "Continue CTA",
+        name: "step1ContinueCta",
         valueType: "string",
-        collapsible: true,
-        fields: [
-          {
-            component: "text",
-            label: "Heading",
-            name: "step3/step3Heading",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Back CTA",
-            name: "step3/step3BackCta",
-            valueType: "string",
-          },
-          {
-            component: "text",
-            label: "Continue CTA",
-            name: "step3/step3ContinueCta",
-            valueType: "string",
-          },
-          {
-            component: "richtext",
-            label: "Completion Message",
-            name: "step3/completionMessage",
-            valueType: "string",
-          },
-        ],
+      },
+    ],
+  },
+  {
+    id: "insurance-journey-step-2",
+    fields: [
+      {
+        component: "text",
+        label: "Heading",
+        name: "step2Heading",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Back CTA",
+        name: "step2BackCta",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Continue CTA",
+        name: "step2ContinueCta",
+        valueType: "string",
+      },
+    ],
+  },
+  {
+    id: "insurance-journey-step-3",
+    fields: [
+      {
+        component: "text",
+        label: "Heading",
+        name: "step3Heading",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Back CTA",
+        name: "step3BackCta",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Continue CTA",
+        name: "step3ContinueCta",
+        valueType: "string",
+      },
+      {
+        component: "richtext",
+        label: "Completion Message",
+        name: "completionMessage",
+        valueType: "string",
       },
     ],
   },
 ] as const;
+
+export const INSURANCE_JOURNEY_STEP_MODEL_IDS = {
+  1: "insurance-journey-step-1",
+  2: "insurance-journey-step-2",
+  3: "insurance-journey-step-3",
+} as const;

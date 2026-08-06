@@ -2,13 +2,12 @@
 import { useEffect, useState } from "react";
 import type {
   CaravanContentResponseData,
-  CaravanFormModel,
   InsuranceJourneyModelByPathData,
   InsuranceJourneyModel,
 } from "@/app/types/ContentTypes";
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
-import { INSURANCE_JOURNEY_MODEL_ID } from "./lib/universalEditorModels";
+import { INSURANCE_JOURNEY_STEP_MODEL_IDS } from "./lib/universalEditorModels";
 
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
@@ -43,9 +42,6 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? "", 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-  // const caravanContent =
-  //   caravanData?.caravanContentByPath?.item ??
-  //   (caravanData?.caravanformmodelByPath?.item as CaravanFormModel);
   const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(
     htmlContent,
   );
@@ -125,24 +121,31 @@ export default function CaravanFormClient({
       heading: insuranceJourneyContent?.step3.step3Heading,
       continueCta: insuranceJourneyContent?.step3.step3ContinueCta,
     },
-  ];
+  ] as const;
 
   return (
     <div
       className="caravan-form-steps"
       data-aue-resource={insuranceJourneyResource}
-      data-aue-type="component"
+      data-aue-type="container"
       data-aue-label="Insurance Journey"
-      data-aue-model={INSURANCE_JOURNEY_MODEL_ID}
     >
       {steps.map((step) => {
-        const isVisible = activeStep === step.id;
+        const isVisible = isEditing || activeStep === step.id;
         const insuranceJourneyStepResource = step.path
           ? `urn:aemconnection:${step.path}/jcr:content/data/master`
           : insuranceJourneyResource;
 
         return isVisible ? (
-          <div key={step.id} className="caravan-form-step" data-step={step.id}>
+          <div
+            key={step.id}
+            className="caravan-form-step"
+            data-step={step.id}
+            data-aue-resource={insuranceJourneyStepResource}
+            data-aue-type="component"
+            data-aue-label={`Step ${step.id}`}
+            data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
+          >
             <h3
               data-aue-resource={insuranceJourneyStepResource}
               data-aue-type="text"
