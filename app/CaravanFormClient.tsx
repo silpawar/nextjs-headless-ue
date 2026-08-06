@@ -42,6 +42,9 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? "", 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
+  // Author-only overview that renders every step in an accordion so all
+  // authorable fields are reachable at once.
+  const [showOverview, setShowOverview] = useState<boolean>(true);
   const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(
     htmlContent,
   );
@@ -123,6 +126,24 @@ export default function CaravanFormClient({
     },
   ] as const;
 
+  // Author overview is only meaningful in edit mode.
+  const showAll = isEditing && showOverview;
+
+  const previewStep = (stepId: number) => {
+    const clampedStep = Math.max(1, Math.min(stepId, 4));
+    setActiveStep(clampedStep);
+    setShowOverview(false);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", String(clampedStep));
+      window.history.replaceState({}, "", url);
+    }
+  };
+
+  const step3Resource = steps[2]?.path
+    ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
+    : insuranceJourneyResource;
+
   return (
     <div
       className="caravan-form-steps"
@@ -130,13 +151,28 @@ export default function CaravanFormClient({
       data-aue-type="container"
       data-aue-label="Insurance Journey"
     >
+      {isEditing && !showOverview ? (
+        <div className="caravan-author-toolbar">
+          <button
+            type="button"
+            className="caravan-author-back-btn"
+            onClick={() => setShowOverview(true)}
+          >
+            ← Back to all steps
+          </button>
+        </div>
+      ) : null}
       {steps.map((step) => {
-        const isVisible = isEditing || activeStep === step.id;
+        const isVisible = activeStep === step.id;
         const insuranceJourneyStepResource = step.path
           ? `urn:aemconnection:${step.path}/jcr:content/data/master`
           : insuranceJourneyResource;
 
-        return isVisible ? (
+        if (!showAll && !isVisible) {
+          return null;
+        }
+
+        const stepBlock = (
           <div
             key={step.id}
             className="caravan-form-step"
@@ -539,20 +575,81 @@ export default function CaravanFormClient({
               {step.continueCta}
             </button>
           </div>
-        ) : null;
+        );
+
+        if (showAll) {
+          return (
+            <details
+              key={step.id}
+              className="caravan-author-step"
+              open={activeStep === step.id}
+            >
+              <summary className="caravan-author-step-summary">
+                <span className="caravan-author-step-title">
+                  {`Step ${step.id}`}
+                  {step.heading ? ` \u2014 ${step.heading}` : ""}
+                </span>
+                <button
+                  type="button"
+                  className="caravan-author-preview-btn"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    previewStep(step.id);
+                  }}
+                >
+                  Preview this step
+                </button>
+              </summary>
+              {stepBlock}
+            </details>
+          );
+        }
+
+        return stepBlock;
       })}
 
-      {activeStep === 4 ? (
+      {showAll ? (
+        <details className="caravan-author-step">
+          <summary className="caravan-author-step-summary">
+            <span className="caravan-author-step-title">
+              Completion message
+            </span>
+            <button
+              type="button"
+              className="caravan-author-preview-btn"
+              onClick={(event) => {
+                event.preventDefault();
+                previewStep(4);
+              }}
+            >
+              Preview this step
+            </button>
+          </summary>
+          <div
+            className="caravan-form-step caravan-form-success"
+            data-step="success"
+          >
+            <div
+              data-aue-resource={step3Resource}
+              data-aue-prop="completionMessage"
+              data-aue-type="richtext"
+              data-aue-filter="cf"
+            >
+              {mapJsonRichText(
+                insuranceJourneyContent?.step3.completionMessage[0]?.json,
+              ) ?? "Congratulations! You have done it!"}
+            </div>
+          </div>
+        </details>
+      ) : null}
+
+      {!showAll && activeStep === 4 ? (
         <div
           className="caravan-form-step caravan-form-success"
           data-step="success"
         >
           <div
-            data-aue-resource={
-              steps[2]?.path
-                ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
-                : insuranceJourneyResource
-            }
+            data-aue-resource={step3Resource}
             data-aue-prop="completionMessage"
             data-aue-type="richtext"
             data-aue-filter="cf"
@@ -566,7 +663,7 @@ export default function CaravanFormClient({
         </div>
       ) : null}
 
-      {isXfLoading || xfHtmlContent ? (
+      {!showAll && (isXfLoading || xfHtmlContent) ? (
         <section className="caravan-form-step">
           <h3>Experience Fragmet content</h3>
           {isXfLoading ? (
