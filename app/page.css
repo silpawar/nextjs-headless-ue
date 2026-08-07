@@ -41,6 +41,18 @@
   }
 }
 
+.caravan-author-hint {
+  margin: 0 0 14px;
+  max-width: 52rem;
+  padding: 10px 14px;
+  border-left: 4px solid #1f7df0;
+  border-radius: 12px;
+  background: rgba(31, 125, 240, 0.08);
+  color: #11418c;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
 .caravan-step-cta {
   border: none;
   border-radius: 999px;

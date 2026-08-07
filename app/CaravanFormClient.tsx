@@ -103,6 +103,8 @@ export default function CaravanFormClient({
       headingProp: "step1Heading",
       searchCtaProp: "step1SearchCta",
       continueCtaProp: "step1ContinueCta",
+      authorHint:
+        "Author note: click the step card to review the Heading, Search CTA, and Continue CTA descriptions in the properties rail. Clicking the heading or CTA edits that field inline and will not show the rail description.",
       path: insuranceJourneyContent?.step1._path,
       heading: insuranceJourneyContent?.step1.step1Heading,
       searchCta: insuranceJourneyContent?.step1.step1SearchCta,
@@ -112,6 +114,8 @@ export default function CaravanFormClient({
       id: 2,
       headingProp: "step2Heading",
       continueCtaProp: "step2ContinueCta",
+      authorHint:
+        "Author note: click the step card to review the Heading, Back CTA, and Continue CTA descriptions in the properties rail. Clicking the heading or CTA edits that field inline and will not show the rail description.",
       path: insuranceJourneyContent?.step2._path,
       heading: insuranceJourneyContent?.step2.step2Heading,
       continueCta: insuranceJourneyContent?.step2.step2ContinueCta,
@@ -120,6 +124,8 @@ export default function CaravanFormClient({
       id: 3,
       headingProp: "step3Heading",
       continueCtaProp: "step3ContinueCta",
+      authorHint:
+        "Author note: click the step card to review the Heading, Back CTA, Continue CTA, and Completion Message descriptions in the properties rail. Clicking the heading or CTA edits that field inline and will not show the rail description.",
       path: insuranceJourneyContent?.step3._path,
       heading: insuranceJourneyContent?.step3.step3Heading,
       continueCta: insuranceJourneyContent?.step3.step3ContinueCta,
@@ -180,8 +186,13 @@ export default function CaravanFormClient({
             data-aue-resource={insuranceJourneyStepResource}
             data-aue-type="component"
             data-aue-label={`Step ${step.id}`}
-            // data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
+            data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
           >
+            {isEditing ? (
+              <p className="caravan-author-hint" role="note">
+                {step.authorHint}
+              </p>
+            ) : null}
             <h3
               data-aue-resource={insuranceJourneyStepResource}
               data-aue-type="text"
