@@ -7,6 +7,8 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         label: "Heading",
         name: "step1Heading",
         valueType: "string",
+        description: "The heading for step 1 of the insurance journey.",
+        defaultValue: "Step 1 Heading (Default)",
       },
       {
         component: "text",
