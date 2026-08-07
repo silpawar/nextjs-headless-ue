@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -28,7 +28,7 @@ export default function CaravanFormClient({
   isEditing: isEditingProp = false,
 }: CaravanFormClientProps) {
   const isEditing = useUniversalEditorMode(isEditingProp);
-  console.log("isEditing", isEditing);
+  const stepPreviewRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditing) {
       return 1;
@@ -135,6 +135,28 @@ export default function CaravanFormClient({
   // Author overview is only meaningful in edit mode.
   const showAll = isEditing && showOverview;
 
+  useEffect(() => {
+    if (!isEditing || showOverview || typeof window === "undefined") {
+      return;
+    }
+
+    const scrollTarget =
+      activeStep <= 3
+        ? stepPreviewRefs.current[activeStep]
+        : document.querySelector<HTMLElement>('[data-step="success"]');
+
+    if (!scrollTarget) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      scrollTarget.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
+    });
+  }, [activeStep, isEditing, showOverview]);
+
   const previewStep = (stepId: number) => {
     const clampedStep = Math.max(1, Math.min(stepId, 4));
     setActiveStep(clampedStep);
@@ -182,6 +204,9 @@ export default function CaravanFormClient({
           <div
             key={step.id}
             className="caravan-form-step"
+            ref={(element) => {
+              stepPreviewRefs.current[step.id] = element;
+            }}
             data-step={step.id}
             data-aue-resource={insuranceJourneyStepResource}
             data-aue-type="component"
