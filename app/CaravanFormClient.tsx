@@ -180,7 +180,7 @@ export default function CaravanFormClient({
             data-aue-resource={insuranceJourneyStepResource}
             data-aue-type="component"
             data-aue-label={`Step ${step.id}`}
-            data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
+            // data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
           >
             <h3
               data-aue-resource={insuranceJourneyStepResource}

@@ -35,12 +35,12 @@ export default function RootLayout({
             data-rh="true"
           />
         ) : null}
-        <script
+        {/* <script
           type="application/vnd.adobe.aue.model+json"
           dangerouslySetInnerHTML={{
             __html: universalEditorModelDefinitionJson,
           }}
-        />
+        /> */}
         <meta name="test" content={`aem:${aem}`} />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
