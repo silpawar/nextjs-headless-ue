@@ -200,10 +200,14 @@ export default function CaravanFormClient({
           which would otherwise swallow clicks on any in-canvas button in edit
           mode. Kept here they stay genuinely clickable. */}
       {isEditing ? (
-        <div className="caravan-author-panel" aria-label="Author controls">
+        <nav className="caravan-author-panel" aria-label="Step navigator">
           {showOverview ? (
             <>
-              <p className="caravan-author-panel-title">Author quick actions</p>
+              <p className="caravan-author-panel-title">Step navigator</p>
+              <p className="caravan-author-panel-description">
+                Jump to a step, open it in the accordion, or preview it in the
+                runtime view.
+              </p>
               <ul className="caravan-author-panel-list">
                 {steps.map((step) => (
                   <li key={step.id} className="caravan-author-panel-row">
@@ -268,7 +272,7 @@ export default function CaravanFormClient({
               </span>
             </div>
           )}
-        </div>
+        </nav>
       ) : null}
       <div
         className="caravan-form-steps"
@@ -298,6 +302,7 @@ export default function CaravanFormClient({
               data-aue-type="component"
               data-aue-label={`Step ${step.id}`}
               data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
+              style={{ scrollMarginTop: "128px" }}
             >
               {isEditing ? (
                 <p className="caravan-author-hint" role="note">
@@ -746,6 +751,7 @@ export default function CaravanFormClient({
             <div
               className="caravan-form-step caravan-form-success"
               data-step="success"
+              style={{ scrollMarginTop: "128px" }}
             >
               <div
                 data-aue-resource={step3Resource}
@@ -765,6 +771,7 @@ export default function CaravanFormClient({
           <div
             className="caravan-form-step caravan-form-success"
             data-step="success"
+            style={{ scrollMarginTop: "128px" }}
           >
             <div
               data-aue-resource={step3Resource}
