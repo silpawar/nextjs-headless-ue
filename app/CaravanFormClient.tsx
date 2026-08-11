@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -45,6 +45,10 @@ export default function CaravanFormClient({
   // Author-only overview that renders every step in an accordion so all
   // authorable fields are reachable at once.
   const [showOverview, setShowOverview] = useState<boolean>(true);
+  // Which accordion panel is expanded in the author overview.
+  const [expandedStepId, setExpandedStepId] = useState<number>(
+    () => activeStep,
+  );
   const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(
     htmlContent,
   );
@@ -157,7 +161,7 @@ export default function CaravanFormClient({
     });
   }, [activeStep, isEditing, showOverview]);
 
-  const previewStep = (stepId: number) => {
+  const previewStep = useCallback((stepId: number) => {
     const clampedStep = Math.max(1, Math.min(stepId, 4));
     setActiveStep(clampedStep);
     setShowOverview(false);
@@ -166,7 +170,69 @@ export default function CaravanFormClient({
       url.searchParams.set("step", String(clampedStep));
       window.history.replaceState({}, "", url);
     }
-  };
+  }, []);
+
+  // Expand a single step inline in the author overview so its fields can be
+  // edited directly on the canvas or via the properties rail.
+  const editStep = useCallback((stepId: number) => {
+    const clampedStep = Math.max(1, Math.min(stepId, 4));
+    setExpandedStepId(clampedStep);
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        const target =
+          clampedStep <= 3
+            ? stepPreviewRefs.current[clampedStep]
+            : document.querySelector<HTMLElement>('[data-step="success"]');
+        target?.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+    }
+  }, []);
+
+  // In Universal Editor edit mode, clicks on in-canvas controls are otherwise
+  // consumed by the editor for component selection. Intercept the author action
+  // buttons in the capture phase on window (which runs before the editor's own
+  // document listeners) so they stay interactive in edit mode.
+  useEffect(() => {
+    if (!isEditing || typeof window === "undefined") {
+      return;
+    }
+
+    const handleAuthorAction = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest<HTMLElement>(
+        "[data-caravan-author-action]",
+      );
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (event.type !== "click") {
+        return;
+      }
+
+      const stepId = Number.parseInt(button.dataset.caravanStep ?? "", 10);
+      if (Number.isNaN(stepId)) {
+        return;
+      }
+
+      if (button.dataset.caravanAuthorAction === "edit") {
+        editStep(stepId);
+      } else {
+        previewStep(stepId);
+      }
+    };
+
+    window.addEventListener("pointerdown", handleAuthorAction, true);
+    window.addEventListener("click", handleAuthorAction, true);
+
+    return () => {
+      window.removeEventListener("pointerdown", handleAuthorAction, true);
+      window.removeEventListener("click", handleAuthorAction, true);
+    };
+  }, [isEditing, editStep, previewStep]);
 
   const step3Resource = steps[2]?.path
     ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
@@ -618,23 +684,44 @@ export default function CaravanFormClient({
             <details
               key={step.id}
               className="caravan-author-step"
-              open={activeStep === step.id}
+              open={expandedStepId === step.id}
+              onToggle={(event) => {
+                if ((event.target as HTMLDetailsElement).open) {
+                  setExpandedStepId(step.id);
+                }
+              }}
             >
               <summary className="caravan-author-step-summary">
                 <span className="caravan-author-step-title">
                   {`Step ${step.id}`}
                   {step.heading ? ` \u2014 ${step.heading}` : ""}
                 </span>
-                <button
-                  type="button"
-                  className="caravan-author-preview-btn"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    previewStep(step.id);
-                  }}
-                >
-                  Preview this step
-                </button>
+                <span className="caravan-author-step-actions">
+                  <button
+                    type="button"
+                    className="caravan-author-edit-btn"
+                    data-caravan-author-action="edit"
+                    data-caravan-step={step.id}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      editStep(step.id);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="caravan-author-preview-btn"
+                    data-caravan-author-action="preview"
+                    data-caravan-step={step.id}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      previewStep(step.id);
+                    }}
+                  >
+                    Preview this step
+                  </button>
+                </span>
               </summary>
               {stepBlock}
             </details>
@@ -645,21 +732,45 @@ export default function CaravanFormClient({
       })}
 
       {showAll ? (
-        <details className="caravan-author-step">
+        <details
+          className="caravan-author-step"
+          open={expandedStepId === 4}
+          onToggle={(event) => {
+            if ((event.target as HTMLDetailsElement).open) {
+              setExpandedStepId(4);
+            }
+          }}
+        >
           <summary className="caravan-author-step-summary">
             <span className="caravan-author-step-title">
               Completion message
             </span>
-            <button
-              type="button"
-              className="caravan-author-preview-btn"
-              onClick={(event) => {
-                event.preventDefault();
-                previewStep(4);
-              }}
-            >
-              Preview this step
-            </button>
+            <span className="caravan-author-step-actions">
+              <button
+                type="button"
+                className="caravan-author-edit-btn"
+                data-caravan-author-action="edit"
+                data-caravan-step={4}
+                onClick={(event) => {
+                  event.preventDefault();
+                  editStep(4);
+                }}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className="caravan-author-preview-btn"
+                data-caravan-author-action="preview"
+                data-caravan-step={4}
+                onClick={(event) => {
+                  event.preventDefault();
+                  previewStep(4);
+                }}
+              >
+                Preview this step
+              </button>
+            </span>
           </summary>
           <div
             className="caravan-form-step caravan-form-success"
