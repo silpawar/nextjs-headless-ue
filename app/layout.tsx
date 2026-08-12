@@ -43,7 +43,7 @@ export default function RootLayout({
         />
         <meta name="test" content={`aem:${aem}`} />
       </head>
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body className="flex flex-col" suppressHydrationWarning>
         {children}
       </body>
     </html>
