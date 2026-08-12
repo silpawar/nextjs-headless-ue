@@ -137,10 +137,6 @@ export default function CaravanFormClient({
 
   return (
     <>
-      {/* Author controls live OUTSIDE the instrumented container: the Universal
-          Editor paints a selection overlay over every editable element's rect,
-          which would otherwise swallow clicks on any in-canvas button in edit
-          mode. Kept here they stay genuinely clickable. */}
       {isEditing ? (
         <nav className="caravan-author-panel" aria-label="Jump to journey step">
           <p className="caravan-author-panel-title">Journey canvas</p>
