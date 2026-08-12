@@ -499,107 +499,36 @@
 }
 
 .caravan-author-panel-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 8px 12px;
+  padding: 0;
   border-radius: 10px;
   background: #fff;
   border: 1px solid #e6e1d7;
 }
 
-.caravan-author-panel-label {
-  flex: 1;
-  min-width: 0;
+.caravan-author-panel-link {
+  display: block;
+  padding: 12px 14px;
   font-weight: 700;
   color: #0f2a73;
+  text-decoration: none;
 }
 
-.caravan-author-panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+.caravan-author-panel-link:hover {
+  background: #f4f7ff;
 }
 
-.caravan-author-panel-single {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.caravan-author-step-section {
+  display: grid;
+  gap: 10px;
 }
 
-.caravan-author-toolbar {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.caravan-author-back-btn {
-  border: 1px solid #0f2a73;
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: #fff;
-  color: #0f2a73;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.caravan-author-back-btn:hover {
-  background: #0f2a73;
-  color: #fff;
-}
-
-.caravan-author-step {
-  border: 1px solid #d8d2c6;
-  border-radius: 16px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.caravan-author-step > .caravan-form-step {
-  border-radius: 0;
+.caravan-author-step-label {
   margin: 0;
-}
-
-.caravan-author-step-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  cursor: pointer;
-  list-style: none;
-  background: #f2eee7;
+  padding: 0 4px;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: #0f2a73;
-}
-
-.caravan-author-step-summary::-webkit-details-marker {
-  display: none;
-}
-
-.caravan-author-step-summary::before {
-  content: "▸";
-  margin-right: 8px;
-  transition: transform 0.15s ease;
-}
-
-.caravan-author-step[open] .caravan-author-step-summary::before {
-  transform: rotate(90deg);
-}
-
-.caravan-author-step-title {
-  flex: 1;
-  min-width: 0;
-}
-
-.caravan-author-step-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  letter-spacing: 0.01em;
+  color: #5d5648;
 }
 
 .caravan-author-panel {
@@ -634,35 +563,14 @@
   color: #5d5648;
 }
 
-.caravan-author-edit-btn {
-  border: 1px solid #0f2a73;
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  background: #fff;
-  color: #0f2a73;
-  cursor: pointer;
-  white-space: nowrap;
-}
+@media (max-width: 768px) {
+  .caravan-author-panel {
+    top: 12px;
+    padding: 14px 16px;
+  }
 
-.caravan-author-edit-btn:hover {
-  background: #0f2a73;
-  color: #fff;
-}
-
-.caravan-author-preview-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  background: #ffd400;
-  color: #0a0a0a;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.caravan-author-preview-btn:hover {
-  background: #eec600;
+  .caravan-author-panel-link {
+    padding: 10px 12px;
+    font-size: 0.92rem;
+  }
 }
