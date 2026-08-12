@@ -21,7 +21,6 @@ const defaultInsuranceJourneyResource =
   "urn:aemconnection:/content/dam/wknd-shared/caravan/caravan-insurance-journey/jcr:content/data/master";
 
 export default function CaravanFormClient({
-  caravanData,
   htmlContent,
   xfPath,
   insuranceJourneyData,
@@ -41,27 +40,29 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? "", 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-  const [xfHtmlContent, setXfHtmlContent] = useState<string | undefined>(
-    htmlContent,
-  );
-  const [isXfLoading, setIsXfLoading] = useState(
-    Boolean(xfPath && !htmlContent),
-  );
+  const [fetchedXfContent, setFetchedXfContent] = useState<{
+    path?: string;
+    html?: string;
+  }>({});
   const insuranceJourneyContent = insuranceJourneyData
     ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
+  const xfHtmlContent =
+    htmlContent ??
+    (fetchedXfContent.path === xfPath ? fetchedXfContent.html : undefined);
+  const isXfLoading = Boolean(
+    xfPath && !htmlContent && fetchedXfContent.path !== xfPath,
+  );
 
   useEffect(() => {
     if (!xfPath || htmlContent) {
-      setIsXfLoading(false);
       return;
     }
 
     let ignore = false;
     const requestedXfPath = xfPath;
-    setIsXfLoading(true);
 
     async function loadExperienceFragment() {
       try {
@@ -75,13 +76,12 @@ export default function CaravanFormClient({
 
         const html = await response.text();
         if (!ignore) {
-          setXfHtmlContent(html);
+          setFetchedXfContent({ path: requestedXfPath, html });
         }
       } catch (error) {
         console.error("Error fetching XF content from API:", error);
-      } finally {
         if (!ignore) {
-          setIsXfLoading(false);
+          setFetchedXfContent({ path: requestedXfPath, html: undefined });
         }
       }
     }
@@ -91,7 +91,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [xfPath, htmlContent, isEditing]);
+  }, [xfPath, htmlContent]);
 
   const steps = [
     {
@@ -141,8 +141,9 @@ export default function CaravanFormClient({
         <nav className="caravan-author-panel" aria-label="Jump to journey step">
           <p className="caravan-author-panel-title">Journey canvas</p>
           <p className="caravan-author-panel-description">
-            Jump to any step section in the authoring canvas. Each step below is
-            rendered against its own content fragment resource.
+            Jump to any step section in the authoring canvas. Runtime buttons
+            render as static previews here because UE overlays block in-canvas
+            button clicks.
           </p>
           <ul className="caravan-author-panel-list">
             {steps.map((step) => (
@@ -332,13 +333,19 @@ export default function CaravanFormClient({
                       </svg>
                     </div>
 
-                    <button
-                      type="button"
-                      className="caravan-link-button"
-                      onClick={() => setActiveStep(1)}
-                    >
-                      Change caravan
-                    </button>
+                    {isEditing ? (
+                      <span className="caravan-link-button caravan-control-static">
+                        Change caravan
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="caravan-link-button"
+                        onClick={() => setActiveStep(1)}
+                      >
+                        Change caravan
+                      </button>
+                    )}
                   </div>
 
                   <div className="caravan-agreement">
@@ -562,35 +569,59 @@ export default function CaravanFormClient({
                   </section>
 
                   <div className="caravan-step-actions caravan-step-actions-dual">
-                    <button
-                      type="button"
-                      className="caravan-step-back"
-                      onClick={() => setActiveStep(2)}
-                    >
-                      Back
-                    </button>
+                    {isEditing ? (
+                      <span className="caravan-step-back caravan-control-static">
+                        Back
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="caravan-step-back"
+                        onClick={() => setActiveStep(2)}
+                      >
+                        Back
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : null}
-              <button
-                type="button"
-                className={
-                  step.id === 2
-                    ? "caravan-step-cta caravan-step-cta-confirm"
-                    : step.id === 3
-                      ? "caravan-step-cta caravan-step-cta-usage"
-                      : "caravan-step-cta"
-                }
-                data-aue-resource={insuranceJourneyStepResource}
-                data-aue-type="text"
-                data-aue-prop={step.continueCtaProp}
-                data-aue-filter="cf"
-                onClick={() =>
-                  setActiveStep((current) => Math.min(current + 1, 4))
-                }
-              >
-                {step.continueCta}
-              </button>
+              {isEditing ? (
+                <span
+                  className={
+                    step.id === 2
+                      ? "caravan-step-cta caravan-step-cta-confirm caravan-control-static"
+                      : step.id === 3
+                        ? "caravan-step-cta caravan-step-cta-usage caravan-control-static"
+                        : "caravan-step-cta caravan-control-static"
+                  }
+                  data-aue-resource={insuranceJourneyStepResource}
+                  data-aue-type="text"
+                  data-aue-prop={step.continueCtaProp}
+                  data-aue-filter="cf"
+                >
+                  {step.continueCta}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className={
+                    step.id === 2
+                      ? "caravan-step-cta caravan-step-cta-confirm"
+                      : step.id === 3
+                        ? "caravan-step-cta caravan-step-cta-usage"
+                        : "caravan-step-cta"
+                  }
+                  data-aue-resource={insuranceJourneyStepResource}
+                  data-aue-type="text"
+                  data-aue-prop={step.continueCtaProp}
+                  data-aue-filter="cf"
+                  onClick={() =>
+                    setActiveStep((current) => Math.min(current + 1, 4))
+                  }
+                >
+                  {step.continueCta}
+                </button>
+              )}
             </div>
           );
 
