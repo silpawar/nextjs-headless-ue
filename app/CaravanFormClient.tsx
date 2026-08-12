@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -26,9 +26,12 @@ export default function CaravanFormClient({
   insuranceJourneyData,
   isEditing: isEditingProp = false,
 }: CaravanFormClientProps) {
-  const isEditing = useUniversalEditorMode(isEditingProp);
+  const universalEditorMode = useUniversalEditorMode(isEditingProp);
+  const isUniversalEditor = universalEditorMode !== "publish";
+  const isAuthorEditing = universalEditorMode === "edit";
+  const navRef = useRef<HTMLElement | null>(null);
   const [activeStep, setActiveStep] = useState<number>(() => {
-    if (!isEditing) {
+    if (!isEditingProp) {
       return 1;
     }
 
@@ -54,6 +57,47 @@ export default function CaravanFormClient({
     (fetchedXfContent.path === xfPath ? fetchedXfContent.html : undefined);
   const isXfLoading = Boolean(
     xfPath && !htmlContent && fetchedXfContent.path !== xfPath,
+  );
+
+  const scrollToAuthorTarget = useCallback((targetId: string) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const target = document.getElementById(targetId);
+    if (!target) {
+      return;
+    }
+
+    const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - navHeight - 32;
+
+    window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+  }, []);
+
+  const handleAuthorStepSelect = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const targetId = event.target.value;
+      if (!targetId) {
+        return;
+      }
+
+      scrollToAuthorTarget(targetId);
+    },
+    [scrollToAuthorTarget],
+  );
+
+  const handlePreviewStepSelect = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const nextStep = Number.parseInt(event.target.value, 10);
+      if (Number.isNaN(nextStep)) {
+        return;
+      }
+
+      setActiveStep(nextStep);
+    },
+    [],
   );
 
   useEffect(() => {
@@ -128,7 +172,7 @@ export default function CaravanFormClient({
     },
   ] as const;
 
-  const showAll = isEditing;
+  const showAll = isAuthorEditing;
   const totalSteps = steps.length;
 
   const step3Resource = steps[2]?.path
@@ -137,34 +181,60 @@ export default function CaravanFormClient({
 
   return (
     <>
-      {isEditing ? (
-        <nav className="caravan-author-panel" aria-label="Jump to journey step">
-          <p className="caravan-author-panel-title">Journey canvas</p>
-          <p className="caravan-author-panel-description">
-            Jump to any step section in the authoring canvas. Runtime buttons
-            render as static previews here because UE overlays block in-canvas
-            button clicks.
+      {isUniversalEditor ? (
+        <nav
+          ref={navRef}
+          className="caravan-author-panel"
+          aria-label={
+            isAuthorEditing ? "Jump to journey step" : "Choose preview step"
+          }
+        >
+          <p className="caravan-author-panel-title">
+            {isAuthorEditing ? "Journey canvas" : "Journey preview"}
           </p>
-          <ul className="caravan-author-panel-list">
-            {steps.map((step) => (
-              <li key={step.id} className="caravan-author-panel-row">
-                <a
-                  className="caravan-author-panel-link"
-                  href={`#caravan-step-${step.id}`}
-                >
-                  {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
-                </a>
-              </li>
-            ))}
-            <li className="caravan-author-panel-row">
-              <a
-                className="caravan-author-panel-link"
-                href="#caravan-step-completion"
+          <p className="caravan-author-panel-description">
+            {isAuthorEditing
+              ? "Jump to any step section in the authoring canvas. Runtime buttons render as static previews here because UE overlays block in-canvas button clicks."
+              : "Preview the live single-step journey by choosing which step should be active in the canvas."}
+          </p>
+          {isAuthorEditing ? (
+            <label className="caravan-author-select-field">
+              <span className="caravan-author-select-label">Jump to step</span>
+              <select
+                className="caravan-author-select"
+                defaultValue=""
+                onChange={handleAuthorStepSelect}
               >
-                Completion message
-              </a>
-            </li>
-          </ul>
+                <option value="" disabled>
+                  Select a step
+                </option>
+                {steps.map((step) => (
+                  <option key={step.id} value={`caravan-step-${step.id}`}>
+                    {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
+                  </option>
+                ))}
+                <option value="caravan-step-completion">
+                  Completion message
+                </option>
+              </select>
+            </label>
+          ) : (
+            <label className="caravan-author-select-field">
+              <span className="caravan-author-select-label">Active step</span>
+              <select
+                className="caravan-author-select"
+                value={String(activeStep)}
+                onChange={handlePreviewStepSelect}
+              >
+                {steps.map((step) => (
+                  <option key={step.id} value={step.id}>
+                    {`Step ${step.id}: ${step.heading ?? `Step ${step.id}`}`}
+                  </option>
+                ))}
+                <option value="4">Completion message</option>
+              </select>
+            </label>
+          )}
         </nav>
       ) : null}
       <div
@@ -194,7 +264,7 @@ export default function CaravanFormClient({
               data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
               style={{ scrollMarginTop: "128px" }}
             >
-              {isEditing ? (
+              {isAuthorEditing ? (
                 <p className="caravan-author-hint" role="note">
                   {step.authorHint}
                 </p>
@@ -333,7 +403,7 @@ export default function CaravanFormClient({
                       </svg>
                     </div>
 
-                    {isEditing ? (
+                    {isAuthorEditing ? (
                       <span className="caravan-link-button caravan-control-static">
                         Change caravan
                       </span>
@@ -569,7 +639,7 @@ export default function CaravanFormClient({
                   </section>
 
                   <div className="caravan-step-actions caravan-step-actions-dual">
-                    {isEditing ? (
+                    {isAuthorEditing ? (
                       <span className="caravan-step-back caravan-control-static">
                         Back
                       </span>
@@ -585,7 +655,7 @@ export default function CaravanFormClient({
                   </div>
                 </div>
               ) : null}
-              {isEditing ? (
+              {isAuthorEditing ? (
                 <span
                   className={
                     step.id === 2

@@ -1,42 +1,42 @@
-'use client';
-import { useState, useEffect } from 'react';
+"use client";
+import { useState, useEffect } from "react";
 
-export function useUniversalEditorMode(initialValue = false): boolean {
-  const [isEditMode, setIsEditMode] = useState<boolean>(() => {
+export type UniversalEditorMode = "publish" | "edit" | "preview";
+
+export function useUniversalEditorMode(
+  initialValue = false,
+): UniversalEditorMode {
+  const [mode, setMode] = useState<UniversalEditorMode>(() => {
     // Trust the server-provided value first (e.g. Universal Editor detected
     // server-side). This keeps the initial client render consistent with the
     // server render and avoids hydration mismatches.
     if (initialValue) {
-      return true;
+      return "edit";
     }
 
-    if (typeof window === 'undefined') {
-      return false;
+    if (typeof window === "undefined") {
+      return "publish";
     }
 
     try {
-      return window.self !== window.top;
+      return window.self !== window.top ? "edit" : "publish";
     } catch {
-      return true;
+      return "edit";
     }
   });
 
   useEffect(() => {
-    if (initialValue) {
-      setIsEditMode(true);
-    }
+    const handleEditMode = (): void => setMode("edit");
+    const handlePreviewMode = (): void => setMode("preview");
 
-    const handleEditMode = (): void => setIsEditMode(true);
-    const handlePreviewMode = (): void => setIsEditMode(true);
-
-    document.addEventListener('aue:ui-edit', handleEditMode);
-    document.addEventListener('aue:ui-preview', handlePreviewMode);
+    document.addEventListener("aue:ui-edit", handleEditMode);
+    document.addEventListener("aue:ui-preview", handlePreviewMode);
 
     return (): void => {
-      document.removeEventListener('aue:ui-edit', handleEditMode);
-      document.removeEventListener('aue:ui-preview', handlePreviewMode);
+      document.removeEventListener("aue:ui-edit", handleEditMode);
+      document.removeEventListener("aue:ui-preview", handlePreviewMode);
     };
-  }, [initialValue]);
+  }, []);
 
-  return isEditMode;
+  return mode;
 }

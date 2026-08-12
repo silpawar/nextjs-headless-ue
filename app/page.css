@@ -519,38 +519,33 @@
   color: #6b6252;
 }
 
-.caravan-author-panel-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+.caravan-author-select-field {
+  display: grid;
   gap: 8px;
 }
 
-.caravan-author-panel-row {
-  padding: 0;
-  border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e6e1d7;
-}
-
-.caravan-author-panel-link {
-  display: block;
-  padding: 12px 14px;
+.caravan-author-select-label {
+  font-size: 0.84rem;
   font-weight: 700;
-  color: #0f2a73;
-  text-decoration: none;
+  letter-spacing: 0.02em;
+  color: #5d5648;
 }
 
-.caravan-author-panel-link:hover {
-  background: #f4f7ff;
+.caravan-author-select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #d2cabd;
+  border-radius: 12px;
+  background: #fff;
+  color: #0f2a73;
+  font-size: 0.96rem;
+  font-weight: 700;
 }
 
 .caravan-author-step-section {
   display: grid;
   gap: 10px;
-  scroll-margin-top: 196px;
 }
 
 .caravan-author-step-label {
@@ -600,8 +595,7 @@
     padding: 14px 16px;
   }
 
-  .caravan-author-panel-link {
-    padding: 10px 12px;
+  .caravan-author-select {
     font-size: 0.92rem;
   }
 }
