@@ -4,6 +4,13 @@
   gap: 22px;
 }
 
+.caravan-ue-shell,
+.caravan-ue-main {
+  flex: none;
+  min-height: max-content;
+  overflow: visible;
+}
+
 .caravan-form-step {
   width: min(930px, 100%);
   background: #f7f5f1;

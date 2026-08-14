@@ -35,6 +35,10 @@ export default function RootLayout({
             data-rh="true"
           />
         ) : null}
+        {/* <meta
+          name="urn:adobe:aue:config:service"
+          content="https://localhost:8000"
+        /> */}
         <script
           type="application/vnd.adobe.aue.model+json"
           dangerouslySetInnerHTML={{
