@@ -30,11 +30,11 @@ export default async function PageContent({
   }
 
   const shellClassName = isUniversalEditor
-    ? "caravan-ue-shell flex flex-col items-stretch justify-start bg-zinc-50 font-sans dark:bg-black"
-    : "flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black";
+    ? "caravan-ue-shell flex flex-col items-center justify-start font-sans dark:bg-black"
+    : "flex flex-col flex-1 items-center justify-center font-sans dark:bg-black";
 
   const mainClassName = isUniversalEditor
-    ? "caravan-ue-main flex w-full max-w-3xl flex-col items-stretch justify-start px-6 py-8 bg-white dark:bg-black sm:items-stretch sm:px-8 lg:px-10"
+    ? "caravan-ue-main flex w-full max-w-3xl flex-col items-center justify-start px-6 py-8 bg-white dark:bg-black sm:items-stretch sm:px-8 lg:px-10"
     : "flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start";
 
   return (
