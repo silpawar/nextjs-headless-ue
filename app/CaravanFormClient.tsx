@@ -1,4 +1,5 @@
 "use client";
+import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
@@ -30,6 +31,7 @@ export default function CaravanFormClient({
   const isUniversalEditor = universalEditorMode !== "publish";
   const isAuthorEditing = universalEditorMode === "edit";
   const navRef = useRef<HTMLElement | null>(null);
+  const [authorScrollOffset, setAuthorScrollOffset] = useState(160);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditingProp) {
       return 1;
@@ -59,22 +61,26 @@ export default function CaravanFormClient({
     xfPath && !htmlContent && fetchedXfContent.path !== xfPath,
   );
 
-  const scrollToAuthorTarget = useCallback((targetId: string) => {
-    if (typeof window === "undefined") {
-      return;
-    }
+  const scrollToAuthorTarget = useCallback(
+    (targetId: string) => {
+      if (typeof window === "undefined") {
+        return;
+      }
 
-    const target = document.getElementById(targetId);
-    if (!target) {
-      return;
-    }
+      const target = document.getElementById(targetId);
+      if (!target) {
+        return;
+      }
 
-    const navHeight = navRef.current?.getBoundingClientRect().height ?? 0;
-    const top =
-      target.getBoundingClientRect().top + window.scrollY - navHeight - 32;
+      const top =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        authorScrollOffset;
 
-    window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
-  }, []);
+      window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+    },
+    [authorScrollOffset],
+  );
 
   const handleAuthorStepSelect = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -137,6 +143,45 @@ export default function CaravanFormClient({
     };
   }, [xfPath, htmlContent]);
 
+  useEffect(() => {
+    if (!isAuthorEditing || typeof window === "undefined") {
+      return;
+    }
+
+    const updateAuthorScrollOffset = () => {
+      const navElement = navRef.current;
+      if (!navElement) {
+        return;
+      }
+
+      const navHeight = navElement.getBoundingClientRect().height;
+      const stickyTop = Number.parseFloat(
+        window.getComputedStyle(navElement).top,
+      );
+      const resolvedStickyTop = Number.isNaN(stickyTop) ? 0 : stickyTop;
+
+      setAuthorScrollOffset(Math.ceil(navHeight + resolvedStickyTop + 16));
+    };
+
+    updateAuthorScrollOffset();
+
+    const navElement = navRef.current;
+    const resizeObserver =
+      navElement && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(updateAuthorScrollOffset)
+        : null;
+
+    if (resizeObserver && navElement) {
+      resizeObserver.observe(navElement);
+    }
+    window.addEventListener("resize", updateAuthorScrollOffset);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateAuthorScrollOffset);
+    };
+  }, [isAuthorEditing]);
+
   const steps = [
     {
       id: 1,
@@ -174,6 +219,11 @@ export default function CaravanFormClient({
 
   const showAll = isAuthorEditing;
   const totalSteps = steps.length;
+  const authorScrollTargetStyle: CSSProperties | undefined = isAuthorEditing
+    ? {
+        ["--caravan-author-scroll-offset" as string]: `${authorScrollOffset}px`,
+      }
+    : undefined;
 
   const step3Resource = steps[2]?.path
     ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
@@ -262,7 +312,7 @@ export default function CaravanFormClient({
               data-aue-type="component"
               data-aue-label={`Step ${step.id}`}
               data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
-              style={{ scrollMarginTop: "128px" }}
+              style={authorScrollTargetStyle}
             >
               {isAuthorEditing ? (
                 <p className="caravan-author-hint" role="note">
@@ -701,6 +751,7 @@ export default function CaravanFormClient({
                 key={step.id}
                 id={`caravan-step-${step.id}`}
                 className="caravan-author-step-section"
+                style={authorScrollTargetStyle}
               >
                 <p className="caravan-author-step-label">
                   {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
@@ -717,12 +768,13 @@ export default function CaravanFormClient({
           <section
             id="caravan-step-completion"
             className="caravan-author-step-section"
+            style={authorScrollTargetStyle}
           >
             <p className="caravan-author-step-label">Completion message</p>
             <div
               className="caravan-form-step caravan-form-success"
               data-step="success"
-              style={{ scrollMarginTop: "128px" }}
+              style={authorScrollTargetStyle}
             >
               <div
                 data-aue-resource={step3Resource}
@@ -742,7 +794,7 @@ export default function CaravanFormClient({
           <div
             className="caravan-form-step caravan-form-success"
             data-step="success"
-            style={{ scrollMarginTop: "128px" }}
+            style={authorScrollTargetStyle}
           >
             <div
               data-aue-resource={step3Resource}

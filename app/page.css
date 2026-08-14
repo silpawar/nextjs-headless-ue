@@ -546,6 +546,11 @@
 .caravan-author-step-section {
   display: grid;
   gap: 10px;
+  scroll-margin-top: var(--caravan-author-scroll-offset, 160px);
+}
+
+.caravan-form-step {
+  scroll-margin-top: var(--caravan-author-scroll-offset, 0px);
 }
 
 .caravan-author-step-label {
