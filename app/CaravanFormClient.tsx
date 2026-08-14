@@ -32,6 +32,9 @@ export default function CaravanFormClient({
   const isAuthorEditing = universalEditorMode === "edit";
   const navRef = useRef<HTMLElement | null>(null);
   const [authorScrollOffset, setAuthorScrollOffset] = useState(160);
+  const [expandedAuthorStepId, setExpandedAuthorStepId] = useState<
+    number | null
+  >(null);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditingProp) {
       return 1;
@@ -89,6 +92,10 @@ export default function CaravanFormClient({
         return;
       }
 
+      const stepId = Number.parseInt(targetId.replace("caravan-step-", ""), 10);
+      if (!Number.isNaN(stepId)) {
+        setExpandedAuthorStepId(stepId);
+      }
       scrollToAuthorTarget(targetId);
     },
     [scrollToAuthorTarget],
@@ -179,6 +186,30 @@ export default function CaravanFormClient({
     return () => {
       resizeObserver?.disconnect();
       window.removeEventListener("resize", updateAuthorScrollOffset);
+    };
+  }, [isAuthorEditing]);
+
+  useEffect(() => {
+    if (!isAuthorEditing) {
+      return;
+    }
+
+    const expandSelectedStep = (event: Event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      const stepElement = event.target.closest<HTMLElement>("[data-step]");
+      const stepId = Number.parseInt(stepElement?.dataset.step ?? "", 10);
+      if (!Number.isNaN(stepId)) {
+        setExpandedAuthorStepId(stepId);
+      }
+    };
+
+    document.addEventListener("aue:ui-select", expandSelectedStep);
+
+    return () => {
+      document.removeEventListener("aue:ui-select", expandSelectedStep);
     };
   }, [isAuthorEditing]);
 
@@ -747,17 +778,23 @@ export default function CaravanFormClient({
 
           if (showAll) {
             return (
-              <section
+              <details
                 key={step.id}
                 id={`caravan-step-${step.id}`}
                 className="caravan-author-step-section"
                 style={authorScrollTargetStyle}
+                open={expandedAuthorStepId === step.id}
+                onToggle={(event) => {
+                  setExpandedAuthorStepId(
+                    event.currentTarget.open ? step.id : null,
+                  );
+                }}
               >
-                <p className="caravan-author-step-label">
+                <summary className="caravan-author-step-label">
                   {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
-                </p>
+                </summary>
                 {stepBlock}
-              </section>
+              </details>
             );
           }
 
@@ -813,7 +850,7 @@ export default function CaravanFormClient({
 
         {!showAll && (isXfLoading || xfHtmlContent) ? (
           <section className="caravan-form-step">
-            <h3>Experience Fragmet content</h3>
+            <h3>Experience Fragment Content</h3>
             {isXfLoading ? (
               <div
                 className="caravan-xf-loader"
