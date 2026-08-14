@@ -51,6 +51,45 @@ function buildAuthHeaders(authorMode: boolean): Record<string, string> {
   return {};
 }
 
+function resolveAssetUrl(value: string, base: string): string {
+  if (
+    !value ||
+    value.startsWith("#") ||
+    value.startsWith("data:") ||
+    value.startsWith("javascript:")
+  ) {
+    return value;
+  }
+
+  try {
+    return new URL(value, base).toString();
+  } catch {
+    return value;
+  }
+}
+
+function resolveExperienceFragmentAssetUrls(
+  html: string,
+  base: string,
+): string {
+  const resolveSrcSet = (srcSet: string) =>
+    srcSet
+      .split(",")
+      .map((candidate) => {
+        const [url, ...descriptors] = candidate.trim().split(/\s+/);
+        return [resolveAssetUrl(url, base), ...descriptors].join(" ");
+      })
+      .join(", ");
+
+  return html
+    .replace(/\bsrc=(['"])(.*?)\1/gi, (_match, quote, src) => {
+      return `src=${quote}${resolveAssetUrl(src, base)}${quote}`;
+    })
+    .replace(/\bsrcset=(['"])(.*?)\1/gi, (_match, quote, srcSet) => {
+      return `srcset=${quote}${resolveSrcSet(srcSet)}${quote}`;
+    });
+}
+
 async function fetchFromAEM<T>(
   queryName: string,
   variables?: Record<string, unknown>,
@@ -152,7 +191,7 @@ export async function fetchExperienceFragment(
     );
   }
 
-  return res.text();
+  return resolveExperienceFragmentAssetUrls(await res.text(), base);
 }
 
 export async function fetchXf(): Promise<string> {
