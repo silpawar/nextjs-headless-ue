@@ -21,8 +21,6 @@ type CaravanFormClientProps = {
 const defaultInsuranceJourneyResource =
   "urn:aemconnection:/content/dam/wknd-shared/caravan/caravan-insurance-journey/jcr:content/data/master";
 
-type PreviewSectionId = number | "completion";
-
 export default function CaravanFormClient({
   htmlContent,
   xfPath,
@@ -32,9 +30,7 @@ export default function CaravanFormClient({
   const universalEditorMode = useUniversalEditorMode(isEditingProp);
   const isUniversalEditor = universalEditorMode !== "publish";
   const isAuthorEditing = universalEditorMode === "edit";
-  const isUniversalEditorPreview = universalEditorMode === "preview";
   const navRef = useRef<HTMLElement | null>(null);
-  const previewSectionRefs = useRef<Partial<Record<PreviewSectionId, HTMLElement | null>>>({});
   const [authorScrollOffset, setAuthorScrollOffset] = useState(160);
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (!isEditingProp) {
@@ -49,9 +45,6 @@ export default function CaravanFormClient({
     const parsedStep = Number.parseInt(stepParam ?? "", 10);
     return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   });
-  const [revealedPreviewSections, setRevealedPreviewSections] = useState<
-    PreviewSectionId[]
-  >(() => [1]);
   const [fetchedXfContent, setFetchedXfContent] = useState<{
     path?: string;
     html?: string;
@@ -89,19 +82,6 @@ export default function CaravanFormClient({
     [authorScrollOffset],
   );
 
-  const revealPreviewSection = useCallback(
-    (sectionId: PreviewSectionId) => {
-      if (!isUniversalEditorPreview) {
-        return;
-      }
-
-      setRevealedPreviewSections((current) =>
-        current.includes(sectionId) ? current : [...current, sectionId],
-      );
-    },
-    [isUniversalEditorPreview],
-  );
-
   const handleAuthorStepSelect = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const targetId = event.target.value;
@@ -122,15 +102,8 @@ export default function CaravanFormClient({
       }
 
       setActiveStep(nextStep);
-      revealPreviewSection(nextStep === 4 ? "completion" : nextStep);
-
-      if (isUniversalEditorPreview) {
-        const targetId =
-          nextStep === 4 ? "caravan-step-completion" : `caravan-step-${nextStep}`;
-        scrollToAuthorTarget(targetId);
-      }
     },
-    [isUniversalEditorPreview, revealPreviewSection, scrollToAuthorTarget],
+    [],
   );
 
   useEffect(() => {
@@ -209,64 +182,6 @@ export default function CaravanFormClient({
     };
   }, [isAuthorEditing]);
 
-  useEffect(() => {
-    if (
-      !isUniversalEditorPreview ||
-      typeof window === "undefined" ||
-      typeof IntersectionObserver === "undefined"
-    ) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const intersectingSections = entries
-          .filter((entry) => entry.isIntersecting)
-          .map((entry) => entry.target.getAttribute("data-preview-section-id"))
-          .filter(
-            (sectionId): sectionId is string =>
-              sectionId !== null && sectionId.length > 0,
-          )
-          .map((sectionId) =>
-            sectionId === "completion" ? "completion" : Number.parseInt(sectionId, 10),
-          )
-          .filter(
-            (sectionId): sectionId is PreviewSectionId =>
-              sectionId === "completion" || !Number.isNaN(sectionId),
-          );
-
-        if (intersectingSections.length === 0) {
-          return;
-        }
-
-        setRevealedPreviewSections((current) => {
-          const next = new Set<PreviewSectionId>(current);
-
-          intersectingSections.forEach((sectionId) => {
-            next.add(sectionId);
-          });
-
-          return next.size === current.length ? current : [...next];
-        });
-      },
-      {
-        root: null,
-        rootMargin: "25% 0px",
-        threshold: 0.15,
-      },
-    );
-
-    Object.values(previewSectionRefs.current).forEach((sectionElement) => {
-      if (sectionElement) {
-        observer.observe(sectionElement);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [isUniversalEditorPreview]);
-
   const steps = [
     {
       id: 1,
@@ -302,32 +217,13 @@ export default function CaravanFormClient({
     },
   ] as const;
 
-  const showAll = isAuthorEditing || isUniversalEditorPreview;
+  const showAll = isAuthorEditing;
   const totalSteps = steps.length;
   const authorScrollTargetStyle: CSSProperties | undefined = isAuthorEditing
     ? {
         ["--caravan-author-scroll-offset" as string]: `${authorScrollOffset}px`,
       }
     : undefined;
-  const setPreviewSectionRef = useCallback(
-    (sectionId: PreviewSectionId) => (element: HTMLElement | null) => {
-      previewSectionRefs.current[sectionId] = element;
-    },
-    [],
-  );
-  const isPreviewSectionRevealed = useCallback(
-    (sectionId: PreviewSectionId) => {
-      if (!isUniversalEditorPreview) {
-        return true;
-      }
-
-      const targetSection = activeStep === 4 ? "completion" : activeStep;
-      return (
-        sectionId === targetSection || revealedPreviewSections.includes(sectionId)
-      );
-    },
-    [activeStep, isUniversalEditorPreview, revealedPreviewSections],
-  );
 
   const step3Resource = steps[2]?.path
     ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
@@ -349,7 +245,7 @@ export default function CaravanFormClient({
           <p className="caravan-author-panel-description">
             {isAuthorEditing
               ? "Jump to any step section in the authoring canvas. Runtime buttons render as static previews here because UE overlays block in-canvas button clicks."
-              : "Jump to any step section in the canvas. Step content loads as each section enters the iframe viewport."}
+              : "Preview the live single-step journey by choosing which step should be active in the canvas."}
           </p>
           {isAuthorEditing ? (
             <label className="caravan-author-select-field">
@@ -399,9 +295,6 @@ export default function CaravanFormClient({
       >
         {steps.map((step) => {
           const isVisible = activeStep === step.id;
-          const shouldRenderStepContent = showAll
-            ? isAuthorEditing || isPreviewSectionRevealed(step.id)
-            : isVisible;
           const insuranceJourneyStepResource = step.path
             ? `urn:aemconnection:${step.path}/jcr:content/data/master`
             : insuranceJourneyResource;
@@ -421,448 +314,434 @@ export default function CaravanFormClient({
               data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
               style={authorScrollTargetStyle}
             >
-              {shouldRenderStepContent ? (
+              {isAuthorEditing ? (
+                <p className="caravan-author-hint" role="note">
+                  {step.authorHint}
+                </p>
+              ) : null}
+              <h3
+                data-aue-resource={insuranceJourneyStepResource}
+                data-aue-type="text"
+                data-aue-prop={step.headingProp}
+                data-aue-filter="cf"
+              >
+                {step.heading}
+              </h3>
+              {step.id === 1 ? (
+                <div className="caravan-form-fields">
+                  <label className="caravan-form-field">
+                    <span>Year</span>
+                    <select defaultValue="">
+                      <option value="" disabled>
+                        Select year
+                      </option>
+                      <option value="2025">2025</option>
+                      <option value="2024">2024</option>
+                      <option value="2023">2023</option>
+                    </select>
+                  </label>
+
+                  <label className="caravan-form-field">
+                    <span>Make</span>
+                    <select defaultValue="">
+                      <option value="" disabled>
+                        Select make
+                      </option>
+                      <option value="swift">Swift</option>
+                      <option value="bailey">Bailey</option>
+                      <option value="coachman">Coachman</option>
+                    </select>
+                  </label>
+
+                  <label className="caravan-form-field">
+                    <span>Model</span>
+                    <select defaultValue="">
+                      <option value="" disabled>
+                        Select model
+                      </option>
+                      <option value="sprite">Sprite</option>
+                      <option value="unicorn">Unicorn</option>
+                      <option value="laser">Laser</option>
+                    </select>
+                  </label>
+                </div>
+              ) : null}
+              {step.id === 2 ? (
                 <>
-                  {isAuthorEditing ? (
-                    <p className="caravan-author-hint" role="note">
-                      {step.authorHint}
-                    </p>
-                  ) : null}
-                  <h3
-                    data-aue-resource={insuranceJourneyStepResource}
-                    data-aue-type="text"
-                    data-aue-prop={step.headingProp}
-                    data-aue-filter="cf"
-                  >
-                    {step.heading}
-                  </h3>
-                  {step.id === 1 ? (
-                    <div className="caravan-form-fields">
-                      <label className="caravan-form-field">
-                        <span>Year</span>
-                        <select defaultValue="">
-                          <option value="" disabled>
-                            Select year
-                          </option>
-                          <option value="2025">2025</option>
-                          <option value="2024">2024</option>
-                          <option value="2023">2023</option>
-                        </select>
-                      </label>
-
-                      <label className="caravan-form-field">
-                        <span>Make</span>
-                        <select defaultValue="">
-                          <option value="" disabled>
-                            Select make
-                          </option>
-                          <option value="swift">Swift</option>
-                          <option value="bailey">Bailey</option>
-                          <option value="coachman">Coachman</option>
-                        </select>
-                      </label>
-
-                      <label className="caravan-form-field">
-                        <span>Model</span>
-                        <select defaultValue="">
-                          <option value="" disabled>
-                            Select model
-                          </option>
-                          <option value="sprite">Sprite</option>
-                          <option value="unicorn">Unicorn</option>
-                          <option value="laser">Laser</option>
-                        </select>
-                      </label>
+                  <div className="caravan-confirm-card">
+                    <div className="caravan-confirm-copy">
+                      <p className="caravan-confirm-title">
+                        2017 CRUSADER CARAVAN
+                      </p>
+                      <p className="caravan-confirm-subtitle">Family Castle</p>
                     </div>
-                  ) : null}
-                  {step.id === 2 ? (
-                    <>
-                      <div className="caravan-confirm-card">
-                        <div className="caravan-confirm-copy">
-                          <p className="caravan-confirm-title">
-                            2017 CRUSADER CARAVAN
-                          </p>
-                          <p className="caravan-confirm-subtitle">Family Castle</p>
-                        </div>
 
-                        <div
-                          className="caravan-confirm-illustration"
-                          aria-hidden="true"
-                        >
-                          <svg viewBox="0 0 340 190" role="presentation">
-                            <ellipse
-                              cx="150"
-                              cy="164"
-                              rx="118"
-                              ry="13"
-                              className="caravan-shadow"
-                            />
-                            <path
-                              className="caravan-body"
-                              d="M28 106c0-43 10-93 58-97 42-3 108 1 143 2 19 1 30 15 37 35l12 35c6 8 18 31 18 43 0 18-14 27-34 29-28 2-168 6-196 0-25-5-38-20-38-47Z"
-                            />
-                            <rect
-                              x="46"
-                              y="41"
-                              width="90"
-                              height="33"
-                              rx="8"
-                              className="caravan-body"
-                            />
-                            <rect
-                              x="153"
-                              y="40"
-                              width="38"
-                              height="35"
-                              rx="8"
-                              className="caravan-body"
-                            />
-                            <rect
-                              x="207"
-                              y="43"
-                              width="44"
-                              height="90"
-                              rx="6"
-                              className="caravan-door"
-                            />
-                            <line
-                              x1="39"
-                              y1="99"
-                              x2="196"
-                              y2="99"
-                              className="caravan-line"
-                            />
-                            <line
-                              x1="216"
-                              y1="95"
-                              x2="224"
-                              y2="95"
-                              className="caravan-line"
-                            />
-                            <line
-                              x1="260"
-                              y1="99"
-                              x2="285"
-                              y2="99"
-                              className="caravan-line"
-                            />
-                            <circle
-                              cx="116"
-                              cy="145"
-                              r="23"
-                              className="caravan-wheel"
-                            />
-                            <circle
-                              cx="178"
-                              cy="145"
-                              r="23"
-                              className="caravan-wheel"
-                            />
-                            <path d="M297 127h18l8-8h11" className="caravan-line" />
-                          </svg>
-                        </div>
-
-                        {isAuthorEditing ? (
-                          <span className="caravan-link-button caravan-control-static">
-                            Change caravan
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            className="caravan-link-button"
-                            onClick={() => {
-                              revealPreviewSection(1);
-                              setActiveStep(1);
-                            }}
-                          >
-                            Change caravan
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="caravan-agreement">
-                        <h4>By continuing, you agree</h4>
-                        <ul className="caravan-agreement-list">
-                          <li>
-                            <span className="caravan-bullet" aria-hidden="true">
-                              <svg viewBox="0 0 20 20" role="presentation">
-                                <circle cx="10" cy="10" r="9" />
-                                <path d="m6 10 2.4 2.5L14 7" />
-                              </svg>
-                            </span>
-                            <div>
-                              <strong>You will:</strong>
-                              <ul>
-                                <li>answer all questions honestly</li>
-                                <li>
-                                  review and update any prefilled information, if
-                                  needed.
-                                </li>
-                              </ul>
-                            </div>
-                          </li>
-                          <li>
-                            <span className="caravan-bullet" aria-hidden="true">
-                              <svg viewBox="0 0 20 20" role="presentation">
-                                <circle cx="10" cy="10" r="9" />
-                                <path d="m6 10 2.4 2.5L14 7" />
-                              </svg>
-                            </span>
-                            <div>
-                              To the <a href="#">terms and conditions of use</a> and{" "}
-                              <a href="#">RACV Privacy Charter</a>.
-                            </div>
-                          </li>
-                        </ul>
-                        <p className="caravan-agreement-note">
-                          Your answers help determine if insurance can be offered,
-                          and on what terms. If you don&apos;t agree to these terms,
-                          call us to discuss your options.
-                        </p>
-                      </div>
-                    </>
-                  ) : null}
-                  {step.id === 3 ? (
-                    <div className="caravan-usage-flow">
-                      <section className="caravan-usage-panel">
-                        <div className="caravan-usage-section-header">
-                          <p className="caravan-usage-question">
-                            How do you mostly use your caravan?
-                          </p>
-                          <a href="#" className="caravan-usage-link">
-                            Business use explained
-                          </a>
-                        </div>
-
-                        <div className="caravan-usage-grid caravan-usage-grid-four">
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="usageType" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Residential</strong>
-                              <small>I live in it</small>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="usageType" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Recreational</strong>
-                              <small>I use it for holidays and weekends</small>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card caravan-choice-card-selected">
-                            <input type="radio" name="usageType" defaultChecked />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Rental accommodation</strong>
-                              <small>I live in it and rent it out</small>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="usageType" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Business use</strong>
-                            </span>
-                          </label>
-                        </div>
-
-                        <div className="caravan-usage-section-header">
-                          <p className="caravan-usage-question">
-                            How do you rent it out?
-                          </p>
-                        </div>
-
-                        <div className="caravan-usage-grid caravan-usage-grid-two">
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="rentOutType" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Privately</strong>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card caravan-choice-card-selected">
-                            <input type="radio" name="rentOutType" defaultChecked />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>On an app or website</strong>
-                              <small>Like Camplify or Outdoorsy</small>
-                            </span>
-                          </label>
-                        </div>
-
-                        <div className="caravan-usage-section-header caravan-usage-section-header-compact">
-                          <p className="caravan-usage-question">
-                            How much of your caravan&apos;s time is spent rented
-                            out?
-                          </p>
-                        </div>
-
-                        <input
-                          className="caravan-percentage-input"
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="Enter a percentage"
+                    <div
+                      className="caravan-confirm-illustration"
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 340 190" role="presentation">
+                        <ellipse
+                          cx="150"
+                          cy="164"
+                          rx="118"
+                          ry="13"
+                          className="caravan-shadow"
                         />
-                      </section>
-
-                      <section className="caravan-usage-panel caravan-usage-panel-compact">
-                        <div className="caravan-usage-section-header caravan-usage-section-header-compact">
-                          <p className="caravan-usage-question">
-                            Do you move your caravan from {`{address}`}?
-                          </p>
-                        </div>
-
-                        <div className="caravan-usage-grid caravan-usage-grid-two">
-                          <label className="caravan-choice-card caravan-choice-card-selected">
-                            <input type="radio" name="moveCaravan" defaultChecked />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Yes</strong>
-                              <small>I take my caravan on the road</small>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="moveCaravan" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>No</strong>
-                              <small>My caravan is permanently sited</small>
-                            </span>
-                          </label>
-                        </div>
-                      </section>
-
-                      <section className="caravan-usage-panel caravan-usage-panel-compact">
-                        <div className="caravan-usage-section-header caravan-usage-section-header-compact">
-                          <p className="caravan-usage-question">
-                            In the next 12 months, will you park your caravan at{" "}
-                            {`{address}`} for an extended period of time?
-                          </p>
-                          <p className="caravan-usage-helper">
-                            Pay less for your cover by telling us when you park your
-                            caravan here - this is called a lay up period.
-                          </p>
-                        </div>
-
-                        <div className="caravan-usage-grid caravan-usage-grid-two">
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="parkExtended" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>Yes</strong>
-                            </span>
-                          </label>
-
-                          <label className="caravan-choice-card">
-                            <input type="radio" name="parkExtended" />
-                            <span
-                              className="caravan-choice-indicator"
-                              aria-hidden="true"
-                            />
-                            <span className="caravan-choice-copy">
-                              <strong>No</strong>
-                            </span>
-                          </label>
-                        </div>
-                      </section>
-
-                      <div className="caravan-step-actions caravan-step-actions-dual">
-                        {isAuthorEditing ? (
-                          <span className="caravan-step-back caravan-control-static">
-                            Back
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            className="caravan-step-back"
-                            onClick={() => {
-                              revealPreviewSection(2);
-                              setActiveStep(2);
-                            }}
-                          >
-                            Back
-                          </button>
-                        )}
-                      </div>
+                        <path
+                          className="caravan-body"
+                          d="M28 106c0-43 10-93 58-97 42-3 108 1 143 2 19 1 30 15 37 35l12 35c6 8 18 31 18 43 0 18-14 27-34 29-28 2-168 6-196 0-25-5-38-20-38-47Z"
+                        />
+                        <rect
+                          x="46"
+                          y="41"
+                          width="90"
+                          height="33"
+                          rx="8"
+                          className="caravan-body"
+                        />
+                        <rect
+                          x="153"
+                          y="40"
+                          width="38"
+                          height="35"
+                          rx="8"
+                          className="caravan-body"
+                        />
+                        <rect
+                          x="207"
+                          y="43"
+                          width="44"
+                          height="90"
+                          rx="6"
+                          className="caravan-door"
+                        />
+                        <line
+                          x1="39"
+                          y1="99"
+                          x2="196"
+                          y2="99"
+                          className="caravan-line"
+                        />
+                        <line
+                          x1="216"
+                          y1="95"
+                          x2="224"
+                          y2="95"
+                          className="caravan-line"
+                        />
+                        <line
+                          x1="260"
+                          y1="99"
+                          x2="285"
+                          y2="99"
+                          className="caravan-line"
+                        />
+                        <circle
+                          cx="116"
+                          cy="145"
+                          r="23"
+                          className="caravan-wheel"
+                        />
+                        <circle
+                          cx="178"
+                          cy="145"
+                          r="23"
+                          className="caravan-wheel"
+                        />
+                        <path d="M297 127h18l8-8h11" className="caravan-line" />
+                      </svg>
                     </div>
-                  ) : null}
-                  {isAuthorEditing ? (
-                    <span
-                      className={
-                        step.id === 2
-                          ? "caravan-step-cta caravan-step-cta-confirm caravan-control-static"
-                          : step.id === 3
-                            ? "caravan-step-cta caravan-step-cta-usage caravan-control-static"
-                            : "caravan-step-cta caravan-control-static"
-                      }
-                      data-aue-resource={insuranceJourneyStepResource}
-                      data-aue-type="text"
-                      data-aue-prop={step.continueCtaProp}
-                      data-aue-filter="cf"
-                    >
-                      {step.continueCta}
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      className={
-                        step.id === 2
-                          ? "caravan-step-cta caravan-step-cta-confirm"
-                          : step.id === 3
-                            ? "caravan-step-cta caravan-step-cta-usage"
-                            : "caravan-step-cta"
-                      }
-                      data-aue-resource={insuranceJourneyStepResource}
-                      data-aue-type="text"
-                      data-aue-prop={step.continueCtaProp}
-                      data-aue-filter="cf"
-                      onClick={() => {
-                        const nextStep = Math.min(step.id + 1, 4);
-                        revealPreviewSection(
-                          nextStep === 4 ? "completion" : nextStep,
-                        );
-                        setActiveStep(nextStep);
-                      }}
-                    >
-                      {step.continueCta}
-                    </button>
-                  )}
+
+                    {isAuthorEditing ? (
+                      <span className="caravan-link-button caravan-control-static">
+                        Change caravan
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="caravan-link-button"
+                        onClick={() => setActiveStep(1)}
+                      >
+                        Change caravan
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="caravan-agreement">
+                    <h4>By continuing, you agree</h4>
+                    <ul className="caravan-agreement-list">
+                      <li>
+                        <span className="caravan-bullet" aria-hidden="true">
+                          <svg viewBox="0 0 20 20" role="presentation">
+                            <circle cx="10" cy="10" r="9" />
+                            <path d="m6 10 2.4 2.5L14 7" />
+                          </svg>
+                        </span>
+                        <div>
+                          <strong>You will:</strong>
+                          <ul>
+                            <li>answer all questions honestly</li>
+                            <li>
+                              review and update any prefilled information, if
+                              needed.
+                            </li>
+                          </ul>
+                        </div>
+                      </li>
+                      <li>
+                        <span className="caravan-bullet" aria-hidden="true">
+                          <svg viewBox="0 0 20 20" role="presentation">
+                            <circle cx="10" cy="10" r="9" />
+                            <path d="m6 10 2.4 2.5L14 7" />
+                          </svg>
+                        </span>
+                        <div>
+                          To the <a href="#">terms and conditions of use</a> and{" "}
+                          <a href="#">RACV Privacy Charter</a>.
+                        </div>
+                      </li>
+                    </ul>
+                    <p className="caravan-agreement-note">
+                      Your answers help determine if insurance can be offered,
+                      and on what terms. If you don&apos;t agree to these terms,
+                      call us to discuss your options.
+                    </p>
+                  </div>
                 </>
               ) : null}
+              {step.id === 3 ? (
+                <div className="caravan-usage-flow">
+                  <section className="caravan-usage-panel">
+                    <div className="caravan-usage-section-header">
+                      <p className="caravan-usage-question">
+                        How do you mostly use your caravan?
+                      </p>
+                      <a href="#" className="caravan-usage-link">
+                        Business use explained
+                      </a>
+                    </div>
+
+                    <div className="caravan-usage-grid caravan-usage-grid-four">
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="usageType" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Residential</strong>
+                          <small>I live in it</small>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="usageType" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Recreational</strong>
+                          <small>I use it for holidays and weekends</small>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card caravan-choice-card-selected">
+                        <input type="radio" name="usageType" defaultChecked />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Rental accommodation</strong>
+                          <small>I live in it and rent it out</small>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="usageType" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Business use</strong>
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="caravan-usage-section-header">
+                      <p className="caravan-usage-question">
+                        How do you rent it out?
+                      </p>
+                    </div>
+
+                    <div className="caravan-usage-grid caravan-usage-grid-two">
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="rentOutType" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Privately</strong>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card caravan-choice-card-selected">
+                        <input type="radio" name="rentOutType" defaultChecked />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>On an app or website</strong>
+                          <small>Like Camplify or Outdoorsy</small>
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="caravan-usage-section-header caravan-usage-section-header-compact">
+                      <p className="caravan-usage-question">
+                        How much of your caravan&apos;s time is spent rented
+                        out?
+                      </p>
+                    </div>
+
+                    <input
+                      className="caravan-percentage-input"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Enter a percentage"
+                    />
+                  </section>
+
+                  <section className="caravan-usage-panel caravan-usage-panel-compact">
+                    <div className="caravan-usage-section-header caravan-usage-section-header-compact">
+                      <p className="caravan-usage-question">
+                        Do you move your caravan from {`{address}`}?
+                      </p>
+                    </div>
+
+                    <div className="caravan-usage-grid caravan-usage-grid-two">
+                      <label className="caravan-choice-card caravan-choice-card-selected">
+                        <input type="radio" name="moveCaravan" defaultChecked />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Yes</strong>
+                          <small>I take my caravan on the road</small>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="moveCaravan" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>No</strong>
+                          <small>My caravan is permanently sited</small>
+                        </span>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="caravan-usage-panel caravan-usage-panel-compact">
+                    <div className="caravan-usage-section-header caravan-usage-section-header-compact">
+                      <p className="caravan-usage-question">
+                        In the next 12 months, will you park your caravan at{" "}
+                        {`{address}`} for an extended period of time?
+                      </p>
+                      <p className="caravan-usage-helper">
+                        Pay less for your cover by telling us when you park your
+                        caravan here - this is called a lay up period.
+                      </p>
+                    </div>
+
+                    <div className="caravan-usage-grid caravan-usage-grid-two">
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="parkExtended" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>Yes</strong>
+                        </span>
+                      </label>
+
+                      <label className="caravan-choice-card">
+                        <input type="radio" name="parkExtended" />
+                        <span
+                          className="caravan-choice-indicator"
+                          aria-hidden="true"
+                        />
+                        <span className="caravan-choice-copy">
+                          <strong>No</strong>
+                        </span>
+                      </label>
+                    </div>
+                  </section>
+
+                  <div className="caravan-step-actions caravan-step-actions-dual">
+                    {isAuthorEditing ? (
+                      <span className="caravan-step-back caravan-control-static">
+                        Back
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="caravan-step-back"
+                        onClick={() => setActiveStep(2)}
+                      >
+                        Back
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : null}
+              {isAuthorEditing ? (
+                <span
+                  className={
+                    step.id === 2
+                      ? "caravan-step-cta caravan-step-cta-confirm caravan-control-static"
+                      : step.id === 3
+                        ? "caravan-step-cta caravan-step-cta-usage caravan-control-static"
+                        : "caravan-step-cta caravan-control-static"
+                  }
+                  data-aue-resource={insuranceJourneyStepResource}
+                  data-aue-type="text"
+                  data-aue-prop={step.continueCtaProp}
+                  data-aue-filter="cf"
+                >
+                  {step.continueCta}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className={
+                    step.id === 2
+                      ? "caravan-step-cta caravan-step-cta-confirm"
+                      : step.id === 3
+                        ? "caravan-step-cta caravan-step-cta-usage"
+                        : "caravan-step-cta"
+                  }
+                  data-aue-resource={insuranceJourneyStepResource}
+                  data-aue-type="text"
+                  data-aue-prop={step.continueCtaProp}
+                  data-aue-filter="cf"
+                  onClick={() =>
+                    setActiveStep((current) => Math.min(current + 1, 4))
+                  }
+                >
+                  {step.continueCta}
+                </button>
+              )}
             </div>
           );
 
@@ -873,8 +752,6 @@ export default function CaravanFormClient({
                 id={`caravan-step-${step.id}`}
                 className="caravan-author-step-section"
                 style={authorScrollTargetStyle}
-                ref={setPreviewSectionRef(step.id)}
-                data-preview-section-id={step.id}
               >
                 <p className="caravan-author-step-label">
                   {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
@@ -892,8 +769,6 @@ export default function CaravanFormClient({
             id="caravan-step-completion"
             className="caravan-author-step-section"
             style={authorScrollTargetStyle}
-            ref={setPreviewSectionRef("completion")}
-            data-preview-section-id="completion"
           >
             <p className="caravan-author-step-label">Completion message</p>
             <div
@@ -901,18 +776,16 @@ export default function CaravanFormClient({
               data-step="success"
               style={authorScrollTargetStyle}
             >
-              {isAuthorEditing || isPreviewSectionRevealed("completion") ? (
-                <div
-                  data-aue-resource={step3Resource}
-                  data-aue-prop="completionMessage"
-                  data-aue-type="richtext"
-                  data-aue-filter="cf"
-                >
-                  {mapJsonRichText(
-                    insuranceJourneyContent?.step3.completionMessage[0]?.json,
-                  ) ?? "Congratulations! You have done it!"}
-                </div>
-              ) : null}
+              <div
+                data-aue-resource={step3Resource}
+                data-aue-prop="completionMessage"
+                data-aue-type="richtext"
+                data-aue-filter="cf"
+              >
+                {mapJsonRichText(
+                  insuranceJourneyContent?.step3.completionMessage[0]?.json,
+                ) ?? "Congratulations! You have done it!"}
+              </div>
             </div>
           </section>
         ) : null}
