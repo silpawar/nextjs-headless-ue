@@ -95,6 +95,10 @@ export default function CaravanFormClient({
       const stepId = Number.parseInt(targetId.replace("caravan-step-", ""), 10);
       if (!Number.isNaN(stepId)) {
         setExpandedAuthorStepId(stepId);
+        console.log(
+          "handleAuthorStepSelect - Expanded author step ID:",
+          stepId,
+        );
       }
       scrollToAuthorTarget(targetId);
     },
@@ -203,6 +207,7 @@ export default function CaravanFormClient({
       const stepId = Number.parseInt(stepElement?.dataset.step ?? "", 10);
       if (!Number.isNaN(stepId)) {
         setExpandedAuthorStepId(stepId);
+        console.log("expandSelectedStep - Expanded author step ID:", stepId);
       }
     };
 
@@ -795,6 +800,10 @@ export default function CaravanFormClient({
                 open={expandedAuthorStepId === step.id}
                 onToggle={(event) => {
                   setExpandedAuthorStepId(
+                    event.currentTarget.open ? step.id : null,
+                  );
+                  console.log(
+                    "onToggle - Expanded author step ID:",
                     event.currentTarget.open ? step.id : null,
                   );
                 }}
