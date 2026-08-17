@@ -62,6 +62,7 @@ export interface InsuranceJourneyModel {
   step1: Step1Model;
   step2: Step2Model;
   step3: Step3Model;
+  step4: Step4Model;
 }
 
 export interface Step1Model {
@@ -83,7 +84,11 @@ export interface Step3Model {
   step3Heading: string;
   step3BackCta: string;
   step3ContinueCta: string;
-  completionMessage: AemRichTextBlock[];
+}
+
+export interface Step4Model {
+  _path: string;
+  confirmationMessage: AemRichTextBlock;
 }
 
 export type InsuranceJourneyModelByPathApiResponse =

@@ -80,10 +80,15 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         description:
           "Label for the button that submits or completes the journey.",
       },
+    ],
+  },
+  {
+    id: "insurance-journey-step-4",
+    fields: [
       {
         component: "richtext",
-        label: "Completion Message",
-        name: "completionMessage",
+        label: "Confirmation Message",
+        name: "confirmationMessage",
         valueType: "string",
         description: "Rich text shown after the journey is completed.",
       },
@@ -95,4 +100,5 @@ export const INSURANCE_JOURNEY_STEP_MODEL_IDS = {
   1: "insurance-journey-step-1",
   2: "insurance-journey-step-2",
   3: "insurance-journey-step-3",
+  4: "insurance-journey-step-4",
 } as const;

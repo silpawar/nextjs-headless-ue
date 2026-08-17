@@ -246,7 +246,7 @@ export default function CaravanFormClient({
       headingProp: "step3Heading",
       continueCtaProp: "step3ContinueCta",
       authorHint:
-        "Author note: click the step card to review the Heading, Back CTA, Continue CTA, and Completion Message descriptions in the properties rail. Clicking the heading or CTA edits that field inline and will not show the rail description.",
+        "Author note: click the step card to review the Heading, Back CTA, Continue CTA in the properties rail. Clicking the heading or CTA edits that field inline and will not show the rail description.",
       path: insuranceJourneyContent?.step3._path,
       heading: insuranceJourneyContent?.step3.step3Heading,
       continueCta: insuranceJourneyContent?.step3.step3ContinueCta,
@@ -261,8 +261,8 @@ export default function CaravanFormClient({
       }
     : undefined;
 
-  const step3Resource = steps[2]?.path
-    ? `urn:aemconnection:${steps[2].path}/jcr:content/data/master`
+  const step4Resource = insuranceJourneyContent?.step4._path
+    ? `urn:aemconnection:${insuranceJourneyContent.step4._path}/jcr:content/data/master`
     : insuranceJourneyResource;
 
   return (
@@ -299,8 +299,8 @@ export default function CaravanFormClient({
                     {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
                   </option>
                 ))}
-                <option value="caravan-step-completion">
-                  Completion message
+                <option value="caravan-step-confirmation">
+                  Confirmation message
                 </option>
               </select>
             </label>
@@ -317,7 +317,7 @@ export default function CaravanFormClient({
                     {`Step ${step.id}: ${step.heading ?? `Step ${step.id}`}`}
                   </option>
                 ))}
-                <option value="4">Completion message</option>
+                <option value="4">Confirmation message</option>
               </select>
             </label>
           )}
@@ -821,24 +821,29 @@ export default function CaravanFormClient({
 
         {showAll ? (
           <section
-            id="caravan-step-completion"
+            id="caravan-step-confirmation"
             className="caravan-author-step-section"
             style={authorScrollTargetStyle}
+            data-step="4"
+            data-aue-resource={step4Resource}
+            data-aue-type="component"
+            data-aue-label="Confirmation message"
+            data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[4]}
           >
-            <p className="caravan-author-step-label">Completion message</p>
+            <p className="caravan-author-step-label">Confirmation message</p>
             <div
               className="caravan-form-step caravan-form-success"
               data-step="success"
               style={authorScrollTargetStyle}
             >
               <div
-                data-aue-resource={step3Resource}
-                data-aue-prop="completionMessage"
+                data-aue-resource={step4Resource}
+                data-aue-prop="confirmationMessage"
                 data-aue-type="richtext"
                 data-aue-filter="cf"
               >
                 {mapJsonRichText(
-                  insuranceJourneyContent?.step3.completionMessage[0]?.json,
+                  insuranceJourneyContent?.step4.confirmationMessage?.json,
                 ) ?? "Congratulations! You have done it!"}
               </div>
             </div>
@@ -850,17 +855,19 @@ export default function CaravanFormClient({
             className="caravan-form-step caravan-form-success"
             data-step="success"
             style={authorScrollTargetStyle}
+            data-aue-resource={step4Resource}
+            data-aue-type="component"
+            data-aue-label="Confirmation message"
+            data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[4]}
           >
             <div
-              data-aue-resource={step3Resource}
-              data-aue-prop="completionMessage"
+              data-aue-resource={step4Resource}
+              data-aue-prop="confirmationMessage"
               data-aue-type="richtext"
               data-aue-filter="cf"
             >
-              {/* {mapJsonRichText(caravanContent.finalstepmessage[0]?.json) ??
-              "Congratulations! You have done it!"} */}
               {mapJsonRichText(
-                insuranceJourneyContent.step3.completionMessage[0]?.json,
+                insuranceJourneyContent?.step4.confirmationMessage?.json,
               ) ?? "Congratulations! You have done it!"}
             </div>
           </div>
