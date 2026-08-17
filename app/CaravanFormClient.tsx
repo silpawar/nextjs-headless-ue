@@ -338,12 +338,16 @@ export default function CaravanFormClient({
             <div
               key={step.id}
               className="caravan-form-step"
-              data-step={step.id}
-              data-aue-resource={insuranceJourneyStepResource}
-              data-aue-type="component"
-              data-aue-label={`Step ${step.id}`}
-              data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
               style={authorScrollTargetStyle}
+              data-step={showAll ? undefined : step.id}
+              data-aue-resource={
+                showAll ? undefined : insuranceJourneyStepResource
+              }
+              data-aue-type={showAll ? undefined : "component"}
+              data-aue-label={showAll ? undefined : `Step ${step.id}`}
+              data-aue-model={
+                showAll ? undefined : INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]
+              }
             >
               {isAuthorEditing ? (
                 <p className="caravan-author-hint" role="note">
@@ -783,6 +787,11 @@ export default function CaravanFormClient({
                 id={`caravan-step-${step.id}`}
                 className="caravan-author-step-section"
                 style={authorScrollTargetStyle}
+                data-step={step.id}
+                data-aue-resource={insuranceJourneyStepResource}
+                data-aue-type="component"
+                data-aue-label={`Step ${step.id}`}
+                data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
                 open={expandedAuthorStepId === step.id}
                 onToggle={(event) => {
                   setExpandedAuthorStepId(
