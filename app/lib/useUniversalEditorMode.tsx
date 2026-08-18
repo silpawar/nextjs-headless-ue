@@ -1,42 +1,50 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 
 export type UniversalEditorMode = "publish" | "edit" | "preview";
 
-export function useUniversalEditorMode(
-  initialValue = false,
-): UniversalEditorMode {
-  const [mode, setMode] = useState<UniversalEditorMode>(() => {
-    // Trust the server-provided value first (e.g. Universal Editor detected
-    // server-side). This keeps the initial client render consistent with the
-    // server render and avoids hydration mismatches.
-    if (initialValue) {
-      return "edit";
-    }
+let currentMode: UniversalEditorMode = "publish";
 
-    if (typeof window === "undefined") {
-      return "publish";
-    }
+function detectMode(): UniversalEditorMode {
+  try {
+    return window.self !== window.top ? "edit" : "publish";
+  } catch {
+    return "edit";
+  }
+}
 
-    try {
-      return window.self !== window.top ? "edit" : "publish";
-    } catch {
-      return "edit";
-    }
-  });
+function subscribe(onStoreChange: () => void): () => void {
+  currentMode = detectMode();
 
-  useEffect(() => {
-    const handleEditMode = (): void => setMode("edit");
-    const handlePreviewMode = (): void => setMode("preview");
+  const handleEditMode = (): void => {
+    currentMode = "edit";
+    onStoreChange();
+  };
+  const handlePreviewMode = (): void => {
+    currentMode = "preview";
+    onStoreChange();
+  };
 
-    document.addEventListener("aue:ui-edit", handleEditMode);
-    document.addEventListener("aue:ui-preview", handlePreviewMode);
+  document.addEventListener("aue:ui-edit", handleEditMode);
+  document.addEventListener("aue:ui-preview", handlePreviewMode);
 
-    return (): void => {
-      document.removeEventListener("aue:ui-edit", handleEditMode);
-      document.removeEventListener("aue:ui-preview", handlePreviewMode);
-    };
-  }, []);
+  return (): void => {
+    document.removeEventListener("aue:ui-edit", handleEditMode);
+    document.removeEventListener("aue:ui-preview", handlePreviewMode);
+  };
+}
 
-  return mode;
+function getMode(): UniversalEditorMode {
+  return currentMode;
+}
+
+function getServerMode(): UniversalEditorMode {
+  return "publish";
+}
+
+// export function useUniversalEditorMode(
+//   initialValue = false,
+// ): UniversalEditorMode {
+export function useUniversalEditorMode(): UniversalEditorMode {
+  return useSyncExternalStore(subscribe, getMode, getServerMode);
 }

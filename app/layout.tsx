@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { INSURANCE_JOURNEY_MODEL_DEFINITION } from "./lib/universalEditorModels";
-import { isUniversalEditorRequest } from "./lib/universalEditor";
+// import { isUniversalEditorRequest } from "./lib/universalEditor";
 
 const aueConnection =
   process.env.NEXT_PUBLIC_AEM_CONNECTION ?? process.env.NEXT_PUBLIC_AEM_HOST;
@@ -17,21 +17,22 @@ const universalEditorModelDefinitionJson = JSON.stringify(
   INSURANCE_JOURNEY_MODEL_DEFINITION,
 );
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isUniversalEditor = await isUniversalEditorRequest();
+  // const isUniversalEditor = await isUniversalEditorRequest();
 
   return (
     <html
       lang="en"
-      className={
-        isUniversalEditor
-          ? "caravan-ue-document antialiased"
-          : "h-full antialiased"
-      }
+      // className={
+      //   isUniversalEditor
+      //     ? "caravan-ue-document antialiased"
+      //     : "h-full antialiased"
+      // }
+      className="h-full antialiased"
       suppressHydrationWarning
     >
       <head>
@@ -59,9 +60,10 @@ export default async function RootLayout({
         <meta name="test" content={`aem:${aem}`} />
       </head>
       <body
-        className={
-          isUniversalEditor ? "caravan-ue-body flex flex-col" : "flex flex-col"
-        }
+        // className={
+        //   isUniversalEditor ? "caravan-ue-body flex flex-col" : "flex flex-col"
+        // }
+        className="flex flex-col"
         suppressHydrationWarning
       >
         {children}
