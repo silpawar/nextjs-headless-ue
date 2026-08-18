@@ -349,11 +349,11 @@ export default function CaravanFormClient({
                 showAll ? undefined : INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]
               }
             >
-              {isAuthorEditing ? (
+              {/* {isAuthorEditing ? (
                 <p className="caravan-author-hint" role="note">
                   {step.authorHint}
                 </p>
-              ) : null}
+              ) : null} */}
               <h3
                 data-aue-resource={insuranceJourneyStepResource}
                 data-aue-type="text"
