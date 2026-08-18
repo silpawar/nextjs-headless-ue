@@ -28,6 +28,7 @@ export default function CaravanFormClient({
   isEditing: isEditingProp = false,
 }: CaravanFormClientProps) {
   const universalEditorMode = useUniversalEditorMode(isEditingProp);
+  console.log("Universal Editor mode:", universalEditorMode);
   const isUniversalEditor = universalEditorMode !== "publish";
   const isAuthorEditing = universalEditorMode === "edit";
   const navRef = useRef<HTMLElement | null>(null);
