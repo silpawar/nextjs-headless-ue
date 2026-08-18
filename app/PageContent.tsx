@@ -7,8 +7,10 @@ import "./page.css";
 
 export default async function PageContent({
   config,
+  authorStep,
 }: {
   config: PageContentConfig;
+  authorStep?: number;
 }) {
   let insuranceJourneyData: InsuranceJourneyModelByPathData | null = null;
 
@@ -44,6 +46,7 @@ export default async function PageContent({
           caravanData={null}
           insuranceJourneyData={insuranceJourneyData}
           isEditing={isUniversalEditor}
+          authorStep={authorStep}
           xfPath={config.xfPath}
         />
       </main>
