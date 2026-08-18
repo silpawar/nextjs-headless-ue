@@ -79,6 +79,21 @@ export default function CaravanFormClient({
     xfPath && !htmlContent && fetchedXfContent.path !== xfPath,
   );
 
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    html.classList.toggle("caravan-ue-document", isUniversalEditor);
+    html.classList.toggle("h-full", !isUniversalEditor);
+    body.classList.toggle("caravan-ue-body", isUniversalEditor);
+
+    return (): void => {
+      html.classList.remove("caravan-ue-document");
+      html.classList.add("h-full");
+      body.classList.remove("caravan-ue-body");
+    };
+  }, [isUniversalEditor]);
+
   const scrollToAuthorTarget = useCallback(
     (targetId: string) => {
       if (typeof window === "undefined") {
