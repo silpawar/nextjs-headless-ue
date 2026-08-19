@@ -1,6 +1,6 @@
 "use client";
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -94,54 +94,16 @@ export default function CaravanFormClient({
     };
   }, [isUniversalEditor]);
 
-  const scrollToAuthorTarget = useCallback(
-    (targetId: string) => {
-      if (typeof window === "undefined") {
-        return;
-      }
+  const handlePreviewStepSelect = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const nextStep = Number.parseInt(event.target.value, 10);
+    if (Number.isNaN(nextStep)) {
+      return;
+    }
 
-      const target = document.getElementById(targetId);
-      if (!target) {
-        return;
-      }
-
-      const top =
-        target.getBoundingClientRect().top +
-        window.scrollY -
-        authorScrollOffset;
-
-      window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
-    },
-    [authorScrollOffset],
-  );
-
-  const handleAuthorStepSelect = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const targetId = event.target.value;
-      if (!targetId) {
-        return;
-      }
-
-      const stepId = Number.parseInt(targetId.replace("caravan-step-", ""), 10);
-      if (!Number.isNaN(stepId)) {
-        setExpandedAuthorStepId(stepId);
-      }
-      scrollToAuthorTarget(targetId);
-    },
-    [scrollToAuthorTarget],
-  );
-
-  const handlePreviewStepSelect = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const nextStep = Number.parseInt(event.target.value, 10);
-      if (Number.isNaN(nextStep)) {
-        return;
-      }
-
-      setActiveStep(nextStep);
-    },
-    [],
-  );
+    setActiveStep(nextStep);
+  };
 
   useEffect(() => {
     if (!xfPath || htmlContent) {
@@ -279,6 +241,8 @@ export default function CaravanFormClient({
   ] as const;
 
   const showAll = isAuthorEditing && authorStep === undefined;
+  const visibleStep =
+    isAuthorEditing && authorStep !== undefined ? authorStep : activeStep;
   const totalSteps = steps.length;
   const authorScrollTargetStyle: CSSProperties | undefined = isAuthorEditing
     ? {
@@ -293,62 +257,32 @@ export default function CaravanFormClient({
   return (
     <div className={shellClassName}>
       <main className={mainClassName}>
-        {isUniversalEditor ? (
+        {universalEditorMode === "preview" ? (
           <nav
             ref={navRef}
             className="caravan-author-panel"
-            aria-label={
-              isAuthorEditing ? "Jump to journey step" : "Choose preview step"
-            }
+            aria-label="Choose preview step"
           >
-            <p className="caravan-author-panel-title">
-              {isAuthorEditing ? "Journey canvas" : "Journey preview"}
-            </p>
+            <p className="caravan-author-panel-title">Journey preview</p>
             <p className="caravan-author-panel-description">
-              {isAuthorEditing
-                ? "Jump to any step section in the authoring canvas. Runtime buttons render as static previews here because UE overlays block in-canvas button clicks."
-                : "Preview the live single-step journey by choosing which step should be active in the canvas."}
+              Preview the live single-step journey by choosing which step should
+              be active in the canvas.
             </p>
-            {isAuthorEditing ? (
-              <label className="caravan-author-select-field">
-                <span className="caravan-author-select-label">
-                  Jump to step
-                </span>
-                <select
-                  className="caravan-author-select"
-                  defaultValue=""
-                  onChange={handleAuthorStepSelect}
-                >
-                  <option value="" disabled>
-                    Select a step
+            <label className="caravan-author-select-field">
+              <span className="caravan-author-select-label">Active step</span>
+              <select
+                className="caravan-author-select"
+                value={String(activeStep)}
+                onChange={handlePreviewStepSelect}
+              >
+                {steps.map((step) => (
+                  <option key={step.id} value={step.id}>
+                    {`Step ${step.id}: ${step.heading ?? `Step ${step.id}`}`}
                   </option>
-                  {steps.map((step) => (
-                    <option key={step.id} value={`caravan-step-${step.id}`}>
-                      {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
-                    </option>
-                  ))}
-                  <option value="caravan-step-confirmation">
-                    Confirmation message
-                  </option>
-                </select>
-              </label>
-            ) : (
-              <label className="caravan-author-select-field">
-                <span className="caravan-author-select-label">Active step</span>
-                <select
-                  className="caravan-author-select"
-                  value={String(activeStep)}
-                  onChange={handlePreviewStepSelect}
-                >
-                  {steps.map((step) => (
-                    <option key={step.id} value={step.id}>
-                      {`Step ${step.id}: ${step.heading ?? `Step ${step.id}`}`}
-                    </option>
-                  ))}
-                  <option value="4">Confirmation message</option>
-                </select>
-              </label>
-            )}
+                ))}
+                <option value="4">Confirmation message</option>
+              </select>
+            </label>
           </nav>
         ) : null}
         <div
@@ -358,7 +292,7 @@ export default function CaravanFormClient({
           data-aue-label="Insurance Journey"
         >
           {steps.map((step) => {
-            const isVisible = activeStep === step.id;
+            const isVisible = visibleStep === step.id;
             const insuranceJourneyStepResource = step.path
               ? `urn:aemconnection:${step.path}/jcr:content/data/master`
               : insuranceJourneyResource;
