@@ -772,7 +772,7 @@ export default function CaravanFormClient({
                   data-step={step.id}
                   data-aue-resource={insuranceJourneyStepResource}
                   // data-aue-type="component"
-                  data-aue-type="reference"
+                  data-aue-type="container"
                   data-aue-label={`Step ${step.id}`}
                   // data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
                   open={expandedAuthorStepId === step.id}
