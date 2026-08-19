@@ -827,7 +827,7 @@ export default function CaravanFormClient({
             </section>
           ) : null}
 
-          {!showAll && activeStep === 4 ? (
+          {!showAll && visibleStep === 4 ? (
             <div
               className="caravan-form-step caravan-form-success"
               data-step="success"
