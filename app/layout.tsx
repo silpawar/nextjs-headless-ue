@@ -51,6 +51,7 @@ export default function RootLayout({
           name="urn:adobe:aue:config:service"
           content="https://localhost:8000"
         /> */}
+        <meta name="urn:adobe:aue:config:disable" content="duplicate" />
         <script
           type="application/vnd.adobe.aue.model+json"
           dangerouslySetInnerHTML={{
