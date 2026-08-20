@@ -31,6 +31,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         label: "XF Path",
         name: "xfPath",
         valueType: "string",
+        variationName: "xfVariation",
         validation: {
           rootPath: "/content/experience-fragments/wknd",
         },
