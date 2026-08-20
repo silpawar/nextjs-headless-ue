@@ -32,7 +32,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         name: "xfPath",
         valueType: "string",
         validation: {
-          rootPath: "/content/experience-fragments/wknd-shared",
+          rootPath: "/content/experience-fragments/wknd",
         },
       },
     ],
