@@ -63,8 +63,13 @@ export interface InsuranceJourneyModel {
   step2: Step2Model;
   step3: Step3Model;
   step4: Step4Model;
-  bottomXfPaths?: PageRef[];
-  bottomXfVariations?: string[];
+  bottomXfs?: BottomXfModel[];
+}
+
+export interface BottomXfModel {
+  _path: string;
+  xfPath?: PageRef;
+  xfVariation?: string;
 }
 
 export interface Step1Model {

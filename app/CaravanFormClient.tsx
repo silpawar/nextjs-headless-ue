@@ -9,6 +9,7 @@ import type {
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
 import {
+  INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID,
   INSURANCE_JOURNEY_PARENT_MODEL_ID,
   INSURANCE_JOURNEY_STEP_MODEL_IDS,
 } from "./lib/universalEditorModels";
@@ -75,26 +76,31 @@ export default function CaravanFormClient({
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
   const resolvedBottomXfPaths = useMemo(() => {
-    const bottomXfPaths = (insuranceJourneyContent?.bottomXfPaths ?? [])
-      .map((xfPath, index) => {
-        const variation = insuranceJourneyContent?.bottomXfVariations?.[index];
-        if (!xfPath?._path || !variation) {
+    const bottomXfPaths = (insuranceJourneyContent?.bottomXfs ?? [])
+      .map((bottomXf) => {
+        if (!bottomXf.xfPath?._path || !bottomXf.xfVariation) {
           return null;
         }
 
-        return `${xfPath._path.replace(/\/$/, "")}/${variation.replace(/^\//, "")}`;
+        return {
+          path: `${bottomXf.xfPath._path.replace(/\/$/, "")}/${bottomXf.xfVariation.replace(/^\//, "")}`,
+          resource: `urn:aemconnection:${bottomXf._path}/jcr:content/data/master`,
+        };
       })
-      .filter((path): path is string => path !== null);
+      .filter(
+        (bottomXf): bottomXf is NonNullable<typeof bottomXf> =>
+          bottomXf !== null,
+      );
 
-    return bottomXfPaths.length > 0 ? bottomXfPaths : xfPath ? [xfPath] : [];
-  }, [
-    insuranceJourneyContent?.bottomXfPaths,
-    insuranceJourneyContent?.bottomXfVariations,
-    xfPath,
-  ]);
+    return bottomXfPaths.length > 0
+      ? bottomXfPaths
+      : xfPath
+        ? [{ path: xfPath, resource: insuranceJourneyResource }]
+        : [];
+  }, [insuranceJourneyContent?.bottomXfs, insuranceJourneyResource, xfPath]);
   const isXfLoading =
     !htmlContent &&
-    resolvedBottomXfPaths.some((path) => !(path in fetchedXfContent));
+    resolvedBottomXfPaths.some(({ path }) => !(path in fetchedXfContent));
 
   useEffect(() => {
     const html = document.documentElement;
@@ -131,10 +137,10 @@ export default function CaravanFormClient({
 
     async function loadExperienceFragment() {
       const requestedXfPaths = resolvedBottomXfPaths.filter(
-        (path) => !(path in fetchedXfContent),
+        ({ path }) => !(path in fetchedXfContent),
       );
       const results = await Promise.all(
-        requestedXfPaths.map(async (path) => {
+        requestedXfPaths.map(async ({ path }) => {
           try {
             const response = await fetch(
               `/api/experience-fragment?path=${encodeURIComponent(path)}`,
@@ -895,11 +901,15 @@ export default function CaravanFormClient({
                   Loading experience fragment…
                 </div>
               ) : (
-                resolvedBottomXfPaths.map((path) => {
+                resolvedBottomXfPaths.map(({ path, resource }) => {
                   const html = htmlContent ?? fetchedXfContent[path];
                   return html ? (
                     <div
                       key={path}
+                      data-aue-resource={resource}
+                      data-aue-type="component"
+                      data-aue-label="Bottom Experience Fragment"
+                      data-aue-model={INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID}
                       dangerouslySetInnerHTML={{ __html: html }}
                     />
                   ) : null;
