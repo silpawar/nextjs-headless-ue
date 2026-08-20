@@ -45,6 +45,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         label: "Bottom XF Paths",
         name: "bottomXfPaths",
         valueType: "string[]",
+        multi: true,
         variationName: "bottomXfVariations",
         validation: {
           rootPath: "/content/experience-fragments/wknd",
