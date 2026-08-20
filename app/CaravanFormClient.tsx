@@ -1,6 +1,6 @@
 "use client";
 import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -66,29 +66,35 @@ export default function CaravanFormClient({
   //   return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   // });
   const [activeStep, setActiveStep] = useState(authorStep ?? 1);
-  const [fetchedXfContent, setFetchedXfContent] = useState<{
-    path?: string;
-    html?: string;
-  }>({});
+  const [fetchedXfContent, setFetchedXfContent] = useState<
+    Record<string, string | undefined>
+  >({});
   const insuranceJourneyContent = insuranceJourneyData
     ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
-  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath?._path;
-  const bottomXfVariation = insuranceJourneyContent?.bottomXfVariation;
-  const bottomXfPath =
-    configuredBottomXfPath && bottomXfVariation
-      ? `${configuredBottomXfPath}/${bottomXfVariation}`
-      : (configuredBottomXfPath ?? xfPath);
-  const xfHtmlContent =
-    htmlContent ??
-    (fetchedXfContent.path === bottomXfPath
-      ? fetchedXfContent.html
-      : undefined);
-  const isXfLoading = Boolean(
-    bottomXfPath && !htmlContent && fetchedXfContent.path !== bottomXfPath,
-  );
+  const resolvedBottomXfPaths = useMemo(() => {
+    const bottomXfPaths = (insuranceJourneyContent?.bottomXfPaths ?? [])
+      .map((xfPath, index) => {
+        const variation = insuranceJourneyContent?.bottomXfVariations?.[index];
+        if (!xfPath?._path || !variation) {
+          return null;
+        }
+
+        return `${xfPath._path.replace(/\/$/, "")}/${variation.replace(/^\//, "")}`;
+      })
+      .filter((path): path is string => path !== null);
+
+    return bottomXfPaths.length > 0 ? bottomXfPaths : xfPath ? [xfPath] : [];
+  }, [
+    insuranceJourneyContent?.bottomXfPaths,
+    insuranceJourneyContent?.bottomXfVariations,
+    xfPath,
+  ]);
+  const isXfLoading =
+    !htmlContent &&
+    resolvedBottomXfPaths.some((path) => !(path in fetchedXfContent));
 
   useEffect(() => {
     const html = document.documentElement;
@@ -117,32 +123,40 @@ export default function CaravanFormClient({
   };
 
   useEffect(() => {
-    if (!bottomXfPath || htmlContent) {
+    if (resolvedBottomXfPaths.length === 0 || htmlContent) {
       return;
     }
 
     let ignore = false;
-    const requestedXfPath = bottomXfPath;
 
     async function loadExperienceFragment() {
-      try {
-        const response = await fetch(
-          `/api/experience-fragment?path=${encodeURIComponent(requestedXfPath)}`,
-        );
+      const requestedXfPaths = resolvedBottomXfPaths.filter(
+        (path) => !(path in fetchedXfContent),
+      );
+      const results = await Promise.all(
+        requestedXfPaths.map(async (path) => {
+          try {
+            const response = await fetch(
+              `/api/experience-fragment?path=${encodeURIComponent(path)}`,
+            );
 
-        if (!response.ok) {
-          throw new Error(`XF API failed: ${response.status}`);
-        }
+            if (!response.ok) {
+              throw new Error(`XF API failed: ${response.status}`);
+            }
 
-        const html = await response.text();
-        if (!ignore) {
-          setFetchedXfContent({ path: requestedXfPath, html });
-        }
-      } catch (error) {
-        console.error("Error fetching XF content from API:", error);
-        if (!ignore) {
-          setFetchedXfContent({ path: requestedXfPath, html: undefined });
-        }
+            return [path, await response.text()] as const;
+          } catch (error) {
+            console.error("Error fetching XF content from API:", error);
+            return [path, undefined] as const;
+          }
+        }),
+      );
+
+      if (!ignore) {
+        setFetchedXfContent((current) => ({
+          ...current,
+          ...Object.fromEntries(results),
+        }));
       }
     }
 
@@ -151,7 +165,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [bottomXfPath, htmlContent]);
+  }, [resolvedBottomXfPaths, htmlContent, fetchedXfContent]);
 
   useEffect(() => {
     if (!isAuthorEditing || typeof window === "undefined") {
@@ -862,7 +876,7 @@ export default function CaravanFormClient({
             </div>
           ) : null}
 
-          {isXfLoading || xfHtmlContent ? (
+          {isXfLoading || resolvedBottomXfPaths.length > 0 ? (
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
@@ -881,7 +895,15 @@ export default function CaravanFormClient({
                   Loading experience fragment…
                 </div>
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: xfHtmlContent! }} />
+                resolvedBottomXfPaths.map((path) => {
+                  const html = htmlContent ?? fetchedXfContent[path];
+                  return html ? (
+                    <div
+                      key={path}
+                      dangerouslySetInnerHTML={{ __html: html }}
+                    />
+                  ) : null;
+                })
               )}
             </section>
           ) : null}
