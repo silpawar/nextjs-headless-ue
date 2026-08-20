@@ -862,7 +862,7 @@ export default function CaravanFormClient({
             </div>
           ) : null}
 
-          {!showAll && (isXfLoading || xfHtmlContent) ? (
+          {isXfLoading || xfHtmlContent ? (
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
