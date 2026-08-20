@@ -142,6 +142,10 @@ export default function CaravanFormClient({
       const requestedXfPaths = resolvedBottomXfPaths.filter(
         ({ path }) => !(path in fetchedXfContent),
       );
+      if (requestedXfPaths.length === 0) {
+        return;
+      }
+
       const results = await Promise.all(
         requestedXfPaths.map(async ({ path }) => {
           try {
