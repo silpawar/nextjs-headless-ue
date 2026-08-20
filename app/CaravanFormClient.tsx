@@ -866,9 +866,11 @@ export default function CaravanFormClient({
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
-              data-aue-type="component"
+              // data-aue-type="component"
+              data-aue-type="reference"
+              data-aue-prop="bottomXfPath"
               data-aue-label="Bottom Experience Fragment"
-              data-aue-model={INSURANCE_JOURNEY_PARENT_MODEL_ID}
+              // data-aue-model={INSURANCE_JOURNEY_PARENT_MODEL_ID}
             >
               <h3>Experience Fragment Content</h3>
               {isXfLoading ? (
