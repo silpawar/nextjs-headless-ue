@@ -1,6 +1,6 @@
 "use client";
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -9,7 +9,6 @@ import type {
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
 import {
-  INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID,
   INSURANCE_JOURNEY_PARENT_MODEL_ID,
   INSURANCE_JOURNEY_STEP_MODEL_IDS,
 } from "./lib/universalEditorModels";
@@ -67,43 +66,29 @@ export default function CaravanFormClient({
   //   return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   // });
   const [activeStep, setActiveStep] = useState(authorStep ?? 1);
-  const [fetchedXfContent, setFetchedXfContent] = useState<
-    Record<string, string | undefined>
-  >({});
+  const [fetchedXfContent, setFetchedXfContent] = useState<{
+    path?: string;
+    html?: string;
+  }>({});
   const insuranceJourneyContent = insuranceJourneyData
     ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
-  const resolvedBottomXfPaths = useMemo(() => {
-    const bottomXfPaths = (insuranceJourneyContent?.bottomXfs ?? [])
-      .map((bottomXf) => {
-        if (!bottomXf.xfPath?._path) {
-          return null;
-        }
-
-        const xfPath = bottomXf.xfPath._path;
-        return {
-          path: bottomXf.xfVariation
-            ? `${xfPath.replace(/\/$/, "")}/${bottomXf.xfVariation.replace(/^\//, "")}`
-            : xfPath,
-          resource: `urn:aemconnection:${bottomXf._path}/jcr:content/data/master`,
-        };
-      })
-      .filter(
-        (bottomXf): bottomXf is NonNullable<typeof bottomXf> =>
-          bottomXf !== null,
-      );
-
-    return bottomXfPaths.length > 0
-      ? bottomXfPaths
-      : xfPath
-        ? [{ path: xfPath, resource: insuranceJourneyResource }]
-        : [];
-  }, [insuranceJourneyContent?.bottomXfs, insuranceJourneyResource, xfPath]);
-  const isXfLoading =
-    !htmlContent &&
-    resolvedBottomXfPaths.some(({ path }) => !(path in fetchedXfContent));
+  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath?._path;
+  const bottomXfVariation = insuranceJourneyContent?.bottomXfVariation;
+  const bottomXfPath =
+    configuredBottomXfPath && bottomXfVariation
+      ? `${configuredBottomXfPath}/${bottomXfVariation}`
+      : (configuredBottomXfPath ?? xfPath);
+  const xfHtmlContent =
+    htmlContent ??
+    (fetchedXfContent.path === bottomXfPath
+      ? fetchedXfContent.html
+      : undefined);
+  const isXfLoading = Boolean(
+    bottomXfPath && !htmlContent && fetchedXfContent.path !== bottomXfPath,
+  );
 
   useEffect(() => {
     const html = document.documentElement;
@@ -132,44 +117,32 @@ export default function CaravanFormClient({
   };
 
   useEffect(() => {
-    if (resolvedBottomXfPaths.length === 0 || htmlContent) {
+    if (!bottomXfPath || htmlContent) {
       return;
     }
 
     let ignore = false;
+    const requestedXfPath = bottomXfPath;
 
     async function loadExperienceFragment() {
-      const requestedXfPaths = resolvedBottomXfPaths.filter(
-        ({ path }) => !(path in fetchedXfContent),
-      );
-      if (requestedXfPaths.length === 0) {
-        return;
-      }
+      try {
+        const response = await fetch(
+          `/api/experience-fragment?path=${encodeURIComponent(requestedXfPath)}`,
+        );
 
-      const results = await Promise.all(
-        requestedXfPaths.map(async ({ path }) => {
-          try {
-            const response = await fetch(
-              `/api/experience-fragment?path=${encodeURIComponent(path)}`,
-            );
+        if (!response.ok) {
+          throw new Error(`XF API failed: ${response.status}`);
+        }
 
-            if (!response.ok) {
-              throw new Error(`XF API failed: ${response.status}`);
-            }
-
-            return [path, await response.text()] as const;
-          } catch (error) {
-            console.error("Error fetching XF content from API:", error);
-            return [path, undefined] as const;
-          }
-        }),
-      );
-
-      if (!ignore) {
-        setFetchedXfContent((current) => ({
-          ...current,
-          ...Object.fromEntries(results),
-        }));
+        const html = await response.text();
+        if (!ignore) {
+          setFetchedXfContent({ path: requestedXfPath, html });
+        }
+      } catch (error) {
+        console.error("Error fetching XF content from API:", error);
+        if (!ignore) {
+          setFetchedXfContent({ path: requestedXfPath, html: undefined });
+        }
       }
     }
 
@@ -178,7 +151,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [resolvedBottomXfPaths, htmlContent, fetchedXfContent]);
+  }, [bottomXfPath, htmlContent]);
 
   useEffect(() => {
     if (!isAuthorEditing || typeof window === "undefined") {
@@ -889,7 +862,7 @@ export default function CaravanFormClient({
             </div>
           ) : null}
 
-          {isXfLoading || resolvedBottomXfPaths.length > 0 ? (
+          {isXfLoading || xfHtmlContent ? (
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
@@ -908,19 +881,7 @@ export default function CaravanFormClient({
                   Loading experience fragment…
                 </div>
               ) : (
-                resolvedBottomXfPaths.map(({ path, resource }) => {
-                  const html = htmlContent ?? fetchedXfContent[path];
-                  return html ? (
-                    <div
-                      key={path}
-                      data-aue-resource={resource}
-                      data-aue-type="component"
-                      data-aue-label="Bottom Experience Fragment"
-                      data-aue-model={INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID}
-                      dangerouslySetInnerHTML={{ __html: html }}
-                    />
-                  ) : null;
-                })
+                <div dangerouslySetInnerHTML={{ __html: xfHtmlContent! }} />
               )}
             </section>
           ) : null}

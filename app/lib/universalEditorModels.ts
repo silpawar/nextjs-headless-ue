@@ -1,6 +1,4 @@
 export const INSURANCE_JOURNEY_PARENT_MODEL_ID = "insurance-journey-parent";
-export const INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID =
-  "insurance-journey-bottom-xf";
 
 export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
   {
@@ -43,26 +41,11 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         },
       },
       {
-        component: "aem-content-fragment",
-        label: "Bottom Experience Fragments",
-        name: "bottomXfs",
-        valueType: "string[]",
-        multi: true,
-        validation: {
-          rootPath: "/content/dam/wknd-shared/caravan/experience-fragments",
-        },
-      },
-    ],
-  },
-  {
-    id: INSURANCE_JOURNEY_BOTTOM_XF_MODEL_ID,
-    fields: [
-      {
         component: "aem-experience-fragment",
-        label: "Experience Fragment",
-        name: "xfPath",
+        label: "Bottom Experience Fragment",
+        name: "bottomXfPath",
         valueType: "string",
-        variationName: "xfVariation",
+        variationName: "bottomXfVariation",
         validation: {
           rootPath: "/content/experience-fragments/wknd",
         },
