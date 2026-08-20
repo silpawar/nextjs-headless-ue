@@ -78,12 +78,15 @@ export default function CaravanFormClient({
   const resolvedBottomXfPaths = useMemo(() => {
     const bottomXfPaths = (insuranceJourneyContent?.bottomXfs ?? [])
       .map((bottomXf) => {
-        if (!bottomXf.xfPath?._path || !bottomXf.xfVariation) {
+        if (!bottomXf.xfPath?._path) {
           return null;
         }
 
+        const xfPath = bottomXf.xfPath._path;
         return {
-          path: `${bottomXf.xfPath._path.replace(/\/$/, "")}/${bottomXf.xfVariation.replace(/^\//, "")}`,
+          path: bottomXf.xfVariation
+            ? `${xfPath.replace(/\/$/, "")}/${bottomXf.xfVariation.replace(/^\//, "")}`
+            : xfPath,
           resource: `urn:aemconnection:${bottomXf._path}/jcr:content/data/master`,
         };
       })
