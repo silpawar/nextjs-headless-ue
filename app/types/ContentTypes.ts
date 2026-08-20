@@ -63,7 +63,7 @@ export interface InsuranceJourneyModel {
   step2: Step2Model;
   step3: Step3Model;
   step4: Step4Model;
-  bottomXfPath?: string;
+  bottomXfPath?: PageRef;
   bottomXfVariation?: string;
 }
 
@@ -91,6 +91,10 @@ export interface Step3Model {
 export interface Step4Model {
   _path: string;
   confirmationMessage: AemRichTextBlock;
+}
+
+export interface PageRef {
+  _path: string;
 }
 
 export type InsuranceJourneyModelByPathApiResponse =
