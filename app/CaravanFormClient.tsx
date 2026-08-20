@@ -75,11 +75,11 @@ export default function CaravanFormClient({
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
-  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath;
+  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath?._path;
   const bottomXfVariation = insuranceJourneyContent?.bottomXfVariation;
   const bottomXfPath =
     configuredBottomXfPath && bottomXfVariation
-      ? `${configuredBottomXfPath.replace(/\/$/, "")}/${bottomXfVariation.replace(/^\//, "")}`
+      ? `${configuredBottomXfPath}/${bottomXfVariation}`
       : (configuredBottomXfPath ?? xfPath);
   const xfHtmlContent =
     htmlContent ??
