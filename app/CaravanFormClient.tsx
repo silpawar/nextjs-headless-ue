@@ -8,7 +8,10 @@ import type {
 } from "@/app/types/ContentTypes";
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
-import { INSURANCE_JOURNEY_STEP_MODEL_IDS } from "./lib/universalEditorModels";
+import {
+  INSURANCE_JOURNEY_PARENT_MODEL_ID,
+  INSURANCE_JOURNEY_STEP_MODEL_IDS,
+} from "./lib/universalEditorModels";
 
 type CaravanFormClientProps = {
   caravanData: CaravanContentResponseData | null;
@@ -72,11 +75,19 @@ export default function CaravanFormClient({
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
+  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath;
+  const bottomXfVariation = insuranceJourneyContent?.bottomXfVariation;
+  const bottomXfPath =
+    configuredBottomXfPath && bottomXfVariation
+      ? `${configuredBottomXfPath.replace(/\/$/, "")}/${bottomXfVariation.replace(/^\//, "")}`
+      : (configuredBottomXfPath ?? xfPath);
   const xfHtmlContent =
     htmlContent ??
-    (fetchedXfContent.path === xfPath ? fetchedXfContent.html : undefined);
+    (fetchedXfContent.path === bottomXfPath
+      ? fetchedXfContent.html
+      : undefined);
   const isXfLoading = Boolean(
-    xfPath && !htmlContent && fetchedXfContent.path !== xfPath,
+    bottomXfPath && !htmlContent && fetchedXfContent.path !== bottomXfPath,
   );
 
   useEffect(() => {
@@ -106,12 +117,12 @@ export default function CaravanFormClient({
   };
 
   useEffect(() => {
-    if (!xfPath || htmlContent) {
+    if (!bottomXfPath || htmlContent) {
       return;
     }
 
     let ignore = false;
-    const requestedXfPath = xfPath;
+    const requestedXfPath = bottomXfPath;
 
     async function loadExperienceFragment() {
       try {
@@ -140,7 +151,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [xfPath, htmlContent]);
+  }, [bottomXfPath, htmlContent]);
 
   useEffect(() => {
     if (!isAuthorEditing || typeof window === "undefined") {
@@ -290,6 +301,7 @@ export default function CaravanFormClient({
           data-aue-resource={insuranceJourneyResource}
           data-aue-type="container"
           data-aue-label="Insurance Journey"
+          data-aue-model={INSURANCE_JOURNEY_PARENT_MODEL_ID}
         >
           {steps.map((step) => {
             const isVisible = visibleStep === step.id;
@@ -851,7 +863,13 @@ export default function CaravanFormClient({
           ) : null}
 
           {!showAll && (isXfLoading || xfHtmlContent) ? (
-            <section className="caravan-form-step">
+            <section
+              className="caravan-form-step"
+              data-aue-resource={insuranceJourneyResource}
+              data-aue-type="component"
+              data-aue-label="Bottom Experience Fragment"
+              data-aue-model={INSURANCE_JOURNEY_PARENT_MODEL_ID}
+            >
               <h3>Experience Fragment Content</h3>
               {isXfLoading ? (
                 <div

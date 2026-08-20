@@ -1,4 +1,57 @@
+export const INSURANCE_JOURNEY_PARENT_MODEL_ID = "insurance-journey-parent";
+
 export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
+  {
+    id: INSURANCE_JOURNEY_PARENT_MODEL_ID,
+    fields: [
+      {
+        component: "aem-content-fragment",
+        label: "Step 1",
+        name: "step1",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
+      },
+      {
+        component: "aem-content-fragment",
+        label: "Step 2",
+        name: "step2",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
+      },
+      {
+        component: "aem-content-fragment",
+        label: "Step 3",
+        name: "step3",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
+      },
+      {
+        component: "aem-content-fragment",
+        label: "Step 4",
+        name: "step4",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
+      },
+      {
+        component: "aem-experience-fragment",
+        label: "Bottom Experience Fragment",
+        name: "bottomXfPath",
+        valueType: "string",
+        variationName: "bottomXfVariation",
+        validation: {
+          rootPath: "/content/experience-fragments/wknd",
+        },
+      },
+    ],
+  },
   {
     id: "insurance-journey-step-1",
     fields: [
