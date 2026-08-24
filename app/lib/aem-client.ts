@@ -169,10 +169,17 @@ export async function fetchExperienceFragment(
   // const base = resolveBase(authorMode);
   const base = AEM_BASE;
 
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const url = normalizedPath.endsWith(".html")
-    ? `${base}${normalizedPath}`
-    : `${base}${normalizedPath}.plain.html`;
+  if (
+    !path.startsWith("/content/experience-fragments/") ||
+    path.includes("://")
+  ) {
+    throw new Error("Invalid Experience Fragment path.");
+  }
+
+  const url = new URL(path, base);
+  url.pathname = url.pathname.endsWith(".plain.html")
+    ? url.pathname
+    : url.pathname.replace(/(?:\.html)?$/, ".plain.html");
 
   const res = await fetch(url, {
     headers: {
@@ -187,10 +194,11 @@ export async function fetchExperienceFragment(
   if (!res.ok) {
     const body = await res.text();
     throw new Error(
-      `AEM Experience Fragment fetch failed: ${res.status} ${url} ${body}`,
+      `AEM Experience Fragment fetch failed: ${res.status} ${url.toString()} ${body}`,
     );
   }
 
+  // return res.text();
   return resolveExperienceFragmentAssetUrls(await res.text(), base);
 }
 

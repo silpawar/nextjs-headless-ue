@@ -65,6 +65,7 @@ export interface InsuranceJourneyModel {
   step4: Step4Model;
   bottomXfPath?: PageRef;
   bottomXfVariation?: string;
+  bottomXfContentPicker?: PageRef[];
 }
 
 export interface Step1Model {
@@ -95,6 +96,7 @@ export interface Step4Model {
 
 export interface PageRef {
   _path: string;
+  _publishUrl: string;
 }
 
 export type InsuranceJourneyModelByPathApiResponse =

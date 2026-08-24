@@ -66,10 +66,7 @@ export default function CaravanFormClient({
   //   return Number.isNaN(parsedStep) ? 1 : Math.max(1, Math.min(parsedStep, 4));
   // });
   const [activeStep, setActiveStep] = useState(authorStep ?? 1);
-  const [fetchedXfContent, setFetchedXfContent] = useState<{
-    path?: string;
-    html?: string;
-  }>({});
+  const [fetchedXfContent, setFetchedXfContent] = useState<string[]>();
   const insuranceJourneyContent = insuranceJourneyData
     ?.insuranceJourneyModelByPath?.item as InsuranceJourneyModel;
   const insuranceJourneyResource = insuranceJourneyContent?._path
@@ -81,13 +78,15 @@ export default function CaravanFormClient({
     configuredBottomXfPath && bottomXfVariation
       ? `${configuredBottomXfPath}/${bottomXfVariation}`
       : (configuredBottomXfPath ?? xfPath);
-  const xfHtmlContent =
-    htmlContent ??
-    (fetchedXfContent.path === bottomXfPath
-      ? fetchedXfContent.html
-      : undefined);
+  const bottomXfPaths =
+    insuranceJourneyContent?.bottomXfContentPicker
+      ?.map(({ _path }) => _path)
+      .filter(Boolean) ?? (bottomXfPath ? [bottomXfPath] : []);
+  const bottomXfPathsKey = JSON.stringify(bottomXfPaths);
+  const hasBottomXfs = bottomXfPaths.length > 0;
+  const xfHtmlContent = htmlContent ? [htmlContent] : fetchedXfContent;
   const isXfLoading = Boolean(
-    bottomXfPath && !htmlContent && fetchedXfContent.path !== bottomXfPath,
+    hasBottomXfs && !htmlContent && !fetchedXfContent,
   );
 
   useEffect(() => {
@@ -117,31 +116,35 @@ export default function CaravanFormClient({
   };
 
   useEffect(() => {
-    if (!bottomXfPath || htmlContent) {
+    if (!hasBottomXfs || htmlContent) {
       return;
     }
 
     let ignore = false;
-    const requestedXfPath = bottomXfPath;
+    const requestedXfPaths = JSON.parse(bottomXfPathsKey) as string[];
 
     async function loadExperienceFragment() {
       try {
-        const response = await fetch(
-          `/api/experience-fragment?path=${encodeURIComponent(requestedXfPath)}`,
+        const html = await Promise.all(
+          requestedXfPaths.map(async (path) => {
+            const response = await fetch(
+              `/api/experience-fragment?path=${encodeURIComponent(path)}`,
+            );
+
+            if (!response.ok) {
+              throw new Error(`XF API failed: ${response.status}`);
+            }
+
+            return response.text();
+          }),
         );
-
-        if (!response.ok) {
-          throw new Error(`XF API failed: ${response.status}`);
-        }
-
-        const html = await response.text();
         if (!ignore) {
-          setFetchedXfContent({ path: requestedXfPath, html });
+          setFetchedXfContent(html);
         }
       } catch (error) {
         console.error("Error fetching XF content from API:", error);
         if (!ignore) {
-          setFetchedXfContent({ path: requestedXfPath, html: undefined });
+          setFetchedXfContent([]);
         }
       }
     }
@@ -151,7 +154,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [bottomXfPath, htmlContent]);
+  }, [bottomXfPathsKey, hasBottomXfs, htmlContent]);
 
   useEffect(() => {
     if (!isAuthorEditing || typeof window === "undefined") {
@@ -862,7 +865,7 @@ export default function CaravanFormClient({
             </div>
           ) : null}
 
-          {isXfLoading || xfHtmlContent ? (
+          {isXfLoading || xfHtmlContent?.length ? (
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
@@ -881,7 +884,12 @@ export default function CaravanFormClient({
                   Loading experience fragment…
                 </div>
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: xfHtmlContent! }} />
+                xfHtmlContent?.map((html, index) => (
+                  <div
+                    key={bottomXfPaths[index] ?? index}
+                    dangerouslySetInnerHTML={{ __html: html }}
+                  />
+                ))
               )}
             </section>
           ) : null}
