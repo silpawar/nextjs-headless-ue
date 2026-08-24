@@ -73,6 +73,12 @@ export interface Step1Model {
   step1Heading: string;
   step1SearchCta: string;
   step1ContinueCta: string;
+  yearDropdownLabel: string;
+  yearDropdownPlaceholder: string;
+  makeDropdownLabel: string;
+  makeDropdownPlaceholder: string;
+  modelDropdownLabel: string;
+  modelDropdownPlaceholder: string;
 }
 
 export interface Step2Model {
@@ -87,6 +93,10 @@ export interface Step3Model {
   step3Heading: string;
   step3BackCta: string;
   step3ContinueCta: string;
+  howDoYouUseYourCaravanLabel: string;
+  residentialCheckbox: CheckboxOption;
+  recreationalCheckboxLabel: string;
+  recreationalCheckboxBottomText: string;
 }
 
 export interface Step4Model {
@@ -97,6 +107,13 @@ export interface Step4Model {
 export interface PageRef {
   _path: string;
   _publishUrl: string;
+}
+
+export interface CheckboxOption {
+  _path: string;
+  key: string;
+  label: string;
+  bottomText: string;
 }
 
 export type InsuranceJourneyModelByPathApiResponse =

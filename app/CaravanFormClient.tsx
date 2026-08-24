@@ -338,10 +338,27 @@ export default function CaravanFormClient({
                 {step.id === 1 ? (
                   <div className="caravan-form-fields">
                     <label className="caravan-form-field">
-                      <span>Year</span>
+                      <span
+                        data-aue-resource={insuranceJourneyStepResource}
+                        data-aue-type="text"
+                        data-aue-prop="yearDropdownLabel"
+                        data-aue-filter="cf"
+                      >
+                        {insuranceJourneyContent?.step1.yearDropdownLabel}
+                      </span>
                       <select defaultValue="">
-                        <option value="" disabled>
-                          Select year
+                        <option
+                          value=""
+                          disabled
+                          data-aue-resource={insuranceJourneyStepResource}
+                          data-aue-type="text"
+                          data-aue-prop="yearDropdownPlaceholder"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step1
+                              .yearDropdownPlaceholder
+                          }
                         </option>
                         <option value="2025">2025</option>
                         <option value="2024">2024</option>
@@ -350,10 +367,27 @@ export default function CaravanFormClient({
                     </label>
 
                     <label className="caravan-form-field">
-                      <span>Make</span>
+                      <span
+                        data-aue-resource={insuranceJourneyStepResource}
+                        data-aue-type="text"
+                        data-aue-prop="makeDropdownLabel"
+                        data-aue-filter="cf"
+                      >
+                        {insuranceJourneyContent?.step1.makeDropdownLabel}
+                      </span>
                       <select defaultValue="">
-                        <option value="" disabled>
-                          Select make
+                        <option
+                          value=""
+                          disabled
+                          data-aue-resource={insuranceJourneyStepResource}
+                          data-aue-type="text"
+                          data-aue-prop="makeDropdownPlaceholder"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step1
+                              .makeDropdownPlaceholder
+                          }
                         </option>
                         <option value="swift">Swift</option>
                         <option value="bailey">Bailey</option>
@@ -362,10 +396,27 @@ export default function CaravanFormClient({
                     </label>
 
                     <label className="caravan-form-field">
-                      <span>Model</span>
+                      <span
+                        data-aue-resource={insuranceJourneyStepResource}
+                        data-aue-type="text"
+                        data-aue-prop="modelDropdownLabel"
+                        data-aue-filter="cf"
+                      >
+                        {insuranceJourneyContent?.step1.modelDropdownLabel}
+                      </span>
                       <select defaultValue="">
-                        <option value="" disabled>
-                          Select model
+                        <option
+                          value=""
+                          disabled
+                          data-aue-resource={insuranceJourneyStepResource}
+                          data-aue-type="text"
+                          data-aue-prop="modelDropdownPlaceholder"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step1
+                              .modelDropdownPlaceholder
+                          }
                         </option>
                         <option value="sprite">Sprite</option>
                         <option value="unicorn">Unicorn</option>
@@ -527,8 +578,17 @@ export default function CaravanFormClient({
                   <div className="caravan-usage-flow">
                     <section className="caravan-usage-panel">
                       <div className="caravan-usage-section-header">
-                        <p className="caravan-usage-question">
-                          How do you mostly use your caravan?
+                        <p
+                          className="caravan-usage-question"
+                          data-aue-resource={insuranceJourneyStepResource}
+                          data-aue-type="text"
+                          data-aue-prop="howDoYouUseYourCaravanLabel"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step3
+                              .howDoYouUseYourCaravanLabel
+                          }
                         </p>
                         <a href="#" className="caravan-usage-link">
                           Business use explained
@@ -543,8 +603,28 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Residential</strong>
-                            <small>I live in it</small>
+                            <strong
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="checkboxOptionLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.residentialCheckbox?.label
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="checkboxOptionDescription"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.residentialCheckbox?.bottomText
+                              }
+                            </small>
                           </span>
                         </label>
 
@@ -555,8 +635,28 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Recreational</strong>
-                            <small>I use it for holidays and weekends</small>
+                            <strong
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="recreationalCheckboxLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .recreationalCheckboxLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="recreationalCheckboxBottomText"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .recreationalCheckboxBottomText
+                              }
+                            </small>
                           </span>
                         </label>
 

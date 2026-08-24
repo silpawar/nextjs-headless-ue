@@ -89,16 +89,6 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         description:
           "Label for the continue button that moves the author preview to step 2.",
       },
-      {
-        component: "aem-experience-fragment",
-        label: "XF Path",
-        name: "xfPath",
-        valueType: "string",
-        variationName: "xfVariation",
-        validation: {
-          rootPath: "/content/experience-fragments/wknd",
-        },
-      },
     ],
   },
   {
