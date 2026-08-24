@@ -54,6 +54,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         component: "aem-content",
         label: "Bottom Experience Fragment - Content Picker",
         name: "bottomXfContentPicker",
+        multi: true,
         valueType: "string",
         validation: {
           rootPath: "/content/experience-fragments/wknd",
