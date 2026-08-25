@@ -41,16 +41,6 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         },
       },
       {
-        component: "aem-experience-fragment",
-        label: "Bottom Experience Fragment",
-        name: "bottomXfPath",
-        valueType: "string",
-        variationName: "bottomXfVariation",
-        validation: {
-          rootPath: "/content/experience-fragments/wknd",
-        },
-      },
-      {
         component: "aem-content",
         label: "Bottom Experience Fragment - Content Picker",
         name: "bottomXfContentPicker",
