@@ -8,7 +8,6 @@ import type {
 } from "@/app/types/ContentTypes";
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
-import type { AemTarget } from "./lib/aem-client";
 import {
   INSURANCE_JOURNEY_PARENT_MODEL_ID,
   INSURANCE_JOURNEY_STEP_MODEL_IDS,
@@ -19,8 +18,8 @@ type CaravanFormClientProps = {
   htmlContent?: string;
   xfPath?: string;
   insuranceJourneyData?: InsuranceJourneyModelByPathData | null;
+  // isEditing?: boolean;
   authorStep?: number;
-  aemTarget: AemTarget;
 };
 
 const defaultInsuranceJourneyResource =
@@ -30,9 +29,10 @@ export default function CaravanFormClient({
   htmlContent,
   xfPath,
   insuranceJourneyData,
+  // isEditing: isEditingProp = false,
   authorStep,
-  aemTarget,
 }: CaravanFormClientProps) {
+  // const universalEditorMode = useUniversalEditorMode(isEditingProp);
   const universalEditorMode = useUniversalEditorMode();
   console.log("Universal Editor mode:", universalEditorMode);
   const isUniversalEditor = universalEditorMode !== "publish";
@@ -129,9 +129,6 @@ export default function CaravanFormClient({
           requestedXfPaths.map(async (path) => {
             const response = await fetch(
               `/api/experience-fragment?path=${encodeURIComponent(path)}`,
-              {
-                headers: { "x-aem-target": aemTarget },
-              },
             );
 
             if (!response.ok) {
@@ -157,7 +154,7 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [aemTarget, bottomXfPathsKey, hasBottomXfs, htmlContent]);
+  }, [bottomXfPathsKey, hasBottomXfs, htmlContent]);
 
   useEffect(() => {
     if (!isAuthorEditing || typeof window === "undefined") {

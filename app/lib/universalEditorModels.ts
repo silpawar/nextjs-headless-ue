@@ -65,14 +65,6 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
       },
       {
         component: "text",
-        label: "Search CTA",
-        name: "step1SearchCta",
-        valueType: "string",
-        description:
-          "Label for the search button shown after the caravan details are selected.",
-      },
-      {
-        component: "text",
         label: "Continue CTA",
         name: "step1ContinueCta",
         valueType: "string",

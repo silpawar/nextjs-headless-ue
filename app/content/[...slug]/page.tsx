@@ -1,19 +1,11 @@
 import { notFound } from "next/navigation";
 import PageContent from "@/app/PageContent";
-import { resolveContentRoute } from "@/app/lib/contentRoute";
-import { getPageContentPaths } from "@/app/lib/pageContent";
+import { resolvePageContent } from "@/app/lib/pageContent";
 
-export function generateStaticParams(): Array<{ slug: string[] }> {
-  return getPageContentPaths().flatMap((pagePath) => {
-    const slug = pagePath.replace(/^\/content\//, "").split("/");
-    return [
-      { slug },
-      ...[1, 2, 3, 4].map((step) => ({
-        slug: [...slug, `step-${step}`],
-      })),
-    ];
-  });
-}
+// Detection reads request headers, so this route must render dynamically.
+export const dynamic = "force-dynamic";
+
+const STEP_SEGMENT_PATTERN = /^step-([1-4])$/;
 
 export default async function ContentPage({
   params,
@@ -21,16 +13,19 @@ export default async function ContentPage({
   params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
-  const contentRoute = resolveContentRoute(slug);
+  const pagePath = `/content/${slug.join("/")}`;
+  const stepSegment = slug.at(-1);
+  const stepMatch = stepSegment?.match(STEP_SEGMENT_PATTERN);
+  const authorStep = stepMatch ? Number.parseInt(stepMatch[1], 10) : undefined;
+  const config = resolvePageContent(
+    authorStep === undefined
+      ? pagePath
+      : `/content/${slug.slice(0, -1).join("/")}`,
+  );
 
-  if (!contentRoute) {
+  if (!config) {
     notFound();
   }
 
-  return (
-    <PageContent
-      config={contentRoute.config}
-      authorStep={contentRoute.authorStep}
-    />
-  );
+  return <PageContent config={config} authorStep={authorStep} />;
 }

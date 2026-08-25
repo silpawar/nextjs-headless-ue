@@ -32,7 +32,3 @@ export const DEFAULT_PAGE_CONTENT: PageContentConfig =
 export function resolvePageContent(pagePath: string): PageContentConfig | null {
   return PAGE_CONTENT[pagePath] ?? null;
 }
-
-export function getPageContentPaths(): string[] {
-  return Object.keys(PAGE_CONTENT);
-}
