@@ -25,7 +25,10 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 Set these environment variables for local development:
 
 - `AEM_HOST`: your AEM host, for example `https://publish-xxxx.adobeaemcloud.com`
+- `AEM_PREVIEW_HOST`: your AEM preview host, for example `https://preview-xxxx.adobeaemcloud.com`
 - `AEM_GRAPHQL_PROJECT`: optional, defaults to `wknd-shared`
+- `AEM_REVALIDATE_SECONDS`: optional publish cache lifetime in seconds, defaults to `3600`
+- `UE_ALLOWED_REFERER_HOSTS`: optional comma-separated Universal Editor hosts.
 
 ## Learn More
 
