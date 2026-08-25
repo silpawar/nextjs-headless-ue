@@ -75,6 +75,7 @@ export interface Step1Model {
   step1ContinueCta: string;
   yearDropdownLabel: string;
   yearDropdownPlaceholder: string;
+  yearDropdownOptionLabels: string[];
   makeDropdownLabel: string;
   makeDropdownPlaceholder: string;
   modelDropdownLabel: string;
@@ -97,6 +98,15 @@ export interface Step3Model {
   residentialCheckbox: CheckboxOption;
   recreationalCheckboxLabel: string;
   recreationalCheckboxBottomText: string;
+  rentalAccomodationCheckboxLabel: string;
+  rentalAccomodationCheckboxBottomText: string;
+  businessUseCheckboxLabel: string;
+  businessUseCheckboxBottomText: string;
+  howDoYouRentOutYourCaravanLabel: string;
+  privateCheckboxLabel: string;
+  privateCheckboxBottomText: string;
+  appWebCheckboxLabel: string;
+  appWebCheckboxBottomText: string;
 }
 
 export interface Step4Model {

@@ -360,9 +360,13 @@ export default function CaravanFormClient({
                               .yearDropdownPlaceholder
                           }
                         </option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
+                        {insuranceJourneyContent?.step1.yearDropdownOptionLabels.map(
+                          (label) => (
+                            <option key={label} value={label}>
+                              {label}
+                            </option>
+                          ),
+                        )}
                       </select>
                     </label>
 
@@ -606,7 +610,7 @@ export default function CaravanFormClient({
                             <strong
                               data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                               data-aue-type="text"
-                              data-aue-prop="checkboxOptionLabel"
+                              data-aue-prop="label"
                               data-aue-filter="cf"
                             >
                               {
@@ -617,7 +621,7 @@ export default function CaravanFormClient({
                             <small
                               data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                               data-aue-type="text"
-                              data-aue-prop="checkboxOptionDescription"
+                              data-aue-prop="bottomText"
                               data-aue-filter="cf"
                             >
                               {
@@ -667,8 +671,28 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Rental accommodation</strong>
-                            <small>I live in it and rent it out</small>
+                            <strong
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="rentalAccomodationCheckboxLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .rentalAccomodationCheckboxLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="rentalAccomodationCheckboxBottomText"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .rentalAccomodationCheckboxBottomText
+                              }
+                            </small>
                           </span>
                         </label>
 
@@ -679,14 +703,44 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Business use</strong>
+                            <strong
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="businessUseCheckboxLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .businessUseCheckboxLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="businessUseCheckboxBottomText"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .businessUseCheckboxBottomText
+                              }
+                            </small>
                           </span>
                         </label>
                       </div>
 
                       <div className="caravan-usage-section-header">
-                        <p className="caravan-usage-question">
-                          How do you rent it out?
+                        <p
+                          className="caravan-usage-question"
+                          data-aue-resource={insuranceJourneyStepResource}
+                          data-aue-type="text"
+                          data-aue-prop="howDoYouRentOutYourCaravanLabel"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step3
+                              .howDoYouRentOutYourCaravanLabel
+                          }
                         </p>
                       </div>
 
@@ -698,7 +752,28 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Privately</strong>
+                            <strong
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="privateCheckboxLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .privateCheckboxLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="privateCheckboxBottomText"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .privateCheckboxBottomText
+                              }
+                            </small>
                           </span>
                         </label>
 
@@ -713,8 +788,28 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>On an app or website</strong>
-                            <small>Like Camplify or Outdoorsy</small>
+                            <strong
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="appWebCheckboxLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .appWebCheckboxLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={insuranceJourneyStepResource}
+                              data-aue-type="text"
+                              data-aue-prop="appWebCheckboxBottomText"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  .appWebCheckboxBottomText
+                              }
+                            </small>
                           </span>
                         </label>
                       </div>
