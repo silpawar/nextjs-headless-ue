@@ -125,6 +125,92 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         description:
           "Label for the button that submits or completes the journey.",
       },
+      {
+        component: "tab",
+        name: "caravanUse",
+        label: "Caravan Use",
+      },
+      {
+        component: "text",
+        label: "How Do You Use Your Caravan Label",
+        name: "howDoYouUseYourCaravanLabel",
+        valueType: "string",
+      },
+      {
+        component: "aem-content-fragment",
+        label: "Residential Checkbox",
+        name: "residentialCheckbox",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
+      },
+      {
+        component: "text",
+        label: "Recreational Checkbox Label",
+        name: "recreationalCheckboxLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Recreational Checkbox Bottom Text",
+        name: "recreationalCheckboxBottomText",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Rental Accommodation Checkbox Label",
+        name: "rentalAccomodationCheckboxLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Rental Accommodation Checkbox Bottom Text",
+        name: "rentalAccomodationCheckboxBottomText",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Business Use Checkbox Label",
+        name: "businessUseCheckboxLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Business Use Checkbox Bottom Text",
+        name: "businessUseCheckboxBottomText",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "How Do You Rent Out Your Caravan Label",
+        name: "howDoYouRentOutYourCaravanLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Private Checkbox Label",
+        name: "privateCheckboxLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Private Checkbox Bottom Text",
+        name: "privateCheckboxBottomText",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "App/Web Checkbox Label",
+        name: "appWebCheckboxLabel",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "App/Web Checkbox Bottom Text",
+        name: "appWebCheckboxBottomText",
+        valueType: "string",
+      },
     ],
   },
   {
