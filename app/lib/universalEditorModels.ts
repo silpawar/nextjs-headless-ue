@@ -201,13 +201,13 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
       },
       {
         component: "text",
-        label: "App/Web Checkbox Label",
+        label: "App/Website Checkbox Label",
         name: "appWebCheckboxLabel",
         valueType: "string",
       },
       {
         component: "text",
-        label: "App/Web Checkbox Bottom Text",
+        label: "App/Website Checkbox Bottom Text",
         name: "appWebCheckboxBottomText",
         valueType: "string",
       },
