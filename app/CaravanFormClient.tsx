@@ -35,6 +35,7 @@ export default function CaravanFormClient({
   authorStep,
   aemTarget,
 }: CaravanFormClientProps) {
+  console.log("AEM Target: ", aemTarget);
   // const universalEditorMode = useUniversalEditorMode(isEditingProp);
   const universalEditorMode = useUniversalEditorMode();
   console.log("Universal Editor mode:", universalEditorMode);
