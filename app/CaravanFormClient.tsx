@@ -360,7 +360,7 @@ export default function CaravanFormClient({
                               .yearDropdownPlaceholder
                           }
                         </option>
-                        {insuranceJourneyContent?.step1.yearDropdownOptionLabels.map(
+                        {insuranceJourneyContent?.step1?.yearDropdownOptionLabels?.map(
                           (label) => (
                             <option key={label} value={label}>
                               {label}
