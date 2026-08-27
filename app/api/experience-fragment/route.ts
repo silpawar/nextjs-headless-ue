@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { fetchExperienceFragment } from "@/app/lib/aem-client";
+import { fetchExperienceFragment, type AemTarget } from "@/app/lib/aem-client";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const path = searchParams.get("path");
+  const target: AemTarget =
+    request.headers.get("x-aem-target") === "preview" ? "preview" : "publish";
 
   if (!path) {
     return NextResponse.json(
@@ -26,13 +28,16 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log(`Fetching Experience Fragment for path: ${path}`);
-    const html = await fetchExperienceFragment(path);
+    console.log(`Fetching ${target} Experience Fragment for path: ${path}`);
+    const html = await fetchExperienceFragment(path, { target });
     return new NextResponse(html, {
       status: 200,
       headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
+        "Cache-Control":
+          target === "preview"
+            ? "no-store"
+            : "s-maxage=3600, stale-while-revalidate=86400",
       },
     });
   } catch (error) {
