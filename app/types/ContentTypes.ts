@@ -107,6 +107,7 @@ export interface Step3Model {
   privateCheckboxBottomText: string;
   appWebCheckboxLabel: string;
   appWebCheckboxBottomText: string;
+  willYouParkCaravanForExtendedTimeQuestion: YesNoRadioButtonQuestion;
 }
 
 export interface Step4Model {
@@ -124,6 +125,16 @@ export interface CheckboxOption {
   key: string;
   label: string;
   bottomText: string;
+}
+
+export interface YesNoRadioButtonQuestion {
+  _path: string;
+  questionLabel: string;
+  questionHelperText: AemRichTextBlock;
+  yesRadioButtonLabel: string;
+  yesRadioButtonDescription: string;
+  noRadioButtonLabel: string;
+  noRadioButtonDescription: string;
 }
 
 export type InsuranceJourneyModelByPathApiResponse =

@@ -874,14 +874,32 @@ export default function CaravanFormClient({
 
                     <section className="caravan-usage-panel caravan-usage-panel-compact">
                       <div className="caravan-usage-section-header caravan-usage-section-header-compact">
-                        <p className="caravan-usage-question">
-                          In the next 12 months, will you park your caravan at{" "}
-                          {`{address}`} for an extended period of time?
+                        <p
+                          className="caravan-usage-question"
+                          data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                          data-aue-type="text"
+                          data-aue-prop="questionLabel"
+                          data-aue-filter="cf"
+                        >
+                          {
+                            insuranceJourneyContent?.step3
+                              ?.willYouParkCaravanForExtendedTimeQuestion
+                              ?.questionLabel
+                          }
                         </p>
-                        <p className="caravan-usage-helper">
-                          Pay less for your cover by telling us when you park
-                          your caravan here - this is called a lay up period.
-                        </p>
+                        <div
+                          className="caravan-usage-helper"
+                          data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                          data-aue-type="richtext"
+                          data-aue-prop="questionHelperText"
+                          data-aue-filter="cf"
+                        >
+                          {mapJsonRichText(
+                            insuranceJourneyContent?.step3
+                              ?.willYouParkCaravanForExtendedTimeQuestion
+                              ?.questionHelperText?.json,
+                          )}
+                        </div>
                       </div>
 
                       <div className="caravan-usage-grid caravan-usage-grid-two">
@@ -892,7 +910,30 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>Yes</strong>
+                            <strong
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="yesRadioButtonLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.willYouParkCaravanForExtendedTimeQuestion
+                                  ?.yesRadioButtonLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="yesRadioButtonDescription"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.willYouParkCaravanForExtendedTimeQuestion
+                                  ?.yesRadioButtonDescription
+                              }
+                            </small>
                           </span>
                         </label>
 
@@ -903,7 +944,30 @@ export default function CaravanFormClient({
                             aria-hidden="true"
                           />
                           <span className="caravan-choice-copy">
-                            <strong>No</strong>
+                            <strong
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="noRadioButtonLabel"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.willYouParkCaravanForExtendedTimeQuestion
+                                  ?.noRadioButtonLabel
+                              }
+                            </strong>
+                            <small
+                              data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                              data-aue-type="text"
+                              data-aue-prop="noRadioButtonDescription"
+                              data-aue-filter="cf"
+                            >
+                              {
+                                insuranceJourneyContent?.step3
+                                  ?.willYouParkCaravanForExtendedTimeQuestion
+                                  ?.noRadioButtonDescription
+                              }
+                            </small>
                           </span>
                         </label>
                       </div>
