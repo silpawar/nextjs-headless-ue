@@ -6,6 +6,9 @@ function getAllowedRefererHosts(): string[] {
     .map((host) => host.trim().toLowerCase())
     .filter(Boolean);
 
+  console.log("Allowed Referer Hosts: ", [
+    ...new Set([...DEFAULT_UE_REFERER_HOSTS, ...configured]),
+  ]);
   return [...new Set([...DEFAULT_UE_REFERER_HOSTS, ...configured])];
 }
 
@@ -24,7 +27,12 @@ function refererIsUniversalEditor(referer: string | null): boolean {
 
   try {
     const { hostname } = new URL(referer);
+    console.log("Referer Hostname: ", hostname);
     return hostMatches(hostname, getAllowedRefererHosts());
+    console.log(
+      "Host Matches: ",
+      hostMatches(hostname, getAllowedRefererHosts()),
+    );
   } catch {
     return false;
   }
