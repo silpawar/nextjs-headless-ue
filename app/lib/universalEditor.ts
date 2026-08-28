@@ -38,6 +38,7 @@ export function isUniversalEditorRequest(requestHeaders: Headers): boolean {
   const secFetchDest = requestHeaders.get("sec-fetch-dest");
   const referer =
     requestHeaders.get("referer") ?? requestHeaders.get("origin") ?? null;
+  console.log("Referer: ", referer);
 
   return secFetchDest === "iframe" && refererIsUniversalEditor(referer);
 }
