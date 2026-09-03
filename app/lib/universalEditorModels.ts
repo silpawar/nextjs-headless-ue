@@ -223,6 +223,13 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         valueType: "string",
         description: "Rich text shown after the journey is completed.",
       },
+      {
+        component: "reference",
+        label: "Multi Image",
+        name: "multiImage",
+        valueType: "string",
+        multi: true,
+      },
     ],
   },
 ] as const;
