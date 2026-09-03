@@ -229,6 +229,9 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         name: "multiImage",
         valueType: "string",
         multi: true,
+        validation: {
+          rootPath: "/content/dam/wknd-shared/caravan",
+        },
       },
     ],
   },
