@@ -224,13 +224,13 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         description: "Rich text shown after the journey is completed.",
       },
       {
-        component: "reference",
+        component: "aem-content",
         label: "Multi Image",
         name: "multiImage",
         valueType: "string",
         multi: true,
         validation: {
-          rootPath: "/content/dam/wknd-shared/caravan",
+          rootPath: "/content/dam/wknd-shared",
         },
       },
     ],
