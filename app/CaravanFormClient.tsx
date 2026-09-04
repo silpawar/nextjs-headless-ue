@@ -1,6 +1,5 @@
 "use client";
-import type { CSSProperties } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   CaravanContentResponseData,
   InsuranceJourneyModelByPathData,
@@ -47,11 +46,6 @@ export default function CaravanFormClient({
   const mainClassName = isUniversalEditor
     ? "caravan-ue-main flex w-full max-w-3xl flex-col items-center justify-start px-6 py-8 bg-white dark:bg-black sm:items-stretch sm:px-8 lg:px-10"
     : "flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start";
-  const navRef = useRef<HTMLElement | null>(null);
-  const [authorScrollOffset, setAuthorScrollOffset] = useState(160);
-  const [expandedAuthorStepId, setExpandedAuthorStepId] = useState<
-    number | null
-  >(null);
   // const [activeStep, setActiveStep] = useState<number>(() => {
   //   if (isEditingProp && authorStep !== undefined) {
   //     return authorStep;
@@ -108,17 +102,6 @@ export default function CaravanFormClient({
     };
   }, [isUniversalEditor]);
 
-  const handlePreviewStepSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const nextStep = Number.parseInt(event.target.value, 10);
-    if (Number.isNaN(nextStep)) {
-      return;
-    }
-
-    setActiveStep(nextStep);
-  };
-
   useEffect(() => {
     if (!hasBottomXfs || htmlContent) {
       return;
@@ -161,69 +144,6 @@ export default function CaravanFormClient({
     };
   }, [aemTarget, bottomXfPathsKey, hasBottomXfs, htmlContent]);
 
-  useEffect(() => {
-    if (!isAuthorEditing || typeof window === "undefined") {
-      return;
-    }
-
-    const updateAuthorScrollOffset = () => {
-      const navElement = navRef.current;
-      if (!navElement) {
-        return;
-      }
-
-      const navHeight = navElement.getBoundingClientRect().height;
-      const stickyTop = Number.parseFloat(
-        window.getComputedStyle(navElement).top,
-      );
-      const resolvedStickyTop = Number.isNaN(stickyTop) ? 0 : stickyTop;
-
-      setAuthorScrollOffset(Math.ceil(navHeight + resolvedStickyTop + 16));
-    };
-
-    updateAuthorScrollOffset();
-
-    const navElement = navRef.current;
-    const resizeObserver =
-      navElement && typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(updateAuthorScrollOffset)
-        : null;
-
-    if (resizeObserver && navElement) {
-      resizeObserver.observe(navElement);
-    }
-    window.addEventListener("resize", updateAuthorScrollOffset);
-
-    return () => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", updateAuthorScrollOffset);
-    };
-  }, [isAuthorEditing]);
-
-  useEffect(() => {
-    if (!isAuthorEditing) {
-      return;
-    }
-
-    const expandSelectedStep = (event: Event) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      const stepElement = event.target.closest<HTMLElement>("[data-step]");
-      const stepId = Number.parseInt(stepElement?.dataset.step ?? "", 10);
-      if (!Number.isNaN(stepId)) {
-        setExpandedAuthorStepId(stepId);
-      }
-    };
-
-    document.addEventListener("aue:ui-select", expandSelectedStep);
-
-    return () => {
-      document.removeEventListener("aue:ui-select", expandSelectedStep);
-    };
-  }, [isAuthorEditing]);
-
   const steps = [
     {
       id: 1,
@@ -253,15 +173,11 @@ export default function CaravanFormClient({
     },
   ] as const;
 
-  const showAll = isAuthorEditing && authorStep === undefined;
+  const isParentAuthoring = isAuthorEditing && authorStep === undefined;
+  const shouldRenderBottomXfs =
+    authorStep === undefined || universalEditorMode === "publish";
   const visibleStep =
     isAuthorEditing && authorStep !== undefined ? authorStep : activeStep;
-  const totalSteps = steps.length;
-  const authorScrollTargetStyle: CSSProperties | undefined = isAuthorEditing
-    ? {
-        ["--caravan-author-scroll-offset" as string]: `${authorScrollOffset}px`,
-      }
-    : undefined;
 
   const step4Resource = insuranceJourneyContent?.step4._path
     ? `urn:aemconnection:${insuranceJourneyContent.step4._path}/jcr:content/data/master`
@@ -270,34 +186,6 @@ export default function CaravanFormClient({
   return (
     <div className={shellClassName}>
       <main className={mainClassName}>
-        {universalEditorMode === "preview" ? (
-          <nav
-            ref={navRef}
-            className="caravan-author-panel"
-            aria-label="Choose preview step"
-          >
-            <p className="caravan-author-panel-title">Journey preview</p>
-            <p className="caravan-author-panel-description">
-              Preview the live single-step journey by choosing which step should
-              be active in the canvas.
-            </p>
-            <label className="caravan-author-select-field">
-              <span className="caravan-author-select-label">Active step</span>
-              <select
-                className="caravan-author-select"
-                value={String(activeStep)}
-                onChange={handlePreviewStepSelect}
-              >
-                {steps.map((step) => (
-                  <option key={step.id} value={step.id}>
-                    {`Step ${step.id}: ${step.heading ?? `Step ${step.id}`}`}
-                  </option>
-                ))}
-                <option value="4">Confirmation message</option>
-              </select>
-            </label>
-          </nav>
-        ) : null}
         <div
           className="caravan-form-steps"
           data-aue-resource={insuranceJourneyResource}
@@ -311,7 +199,7 @@ export default function CaravanFormClient({
               ? `urn:aemconnection:${step.path}/jcr:content/data/master`
               : insuranceJourneyResource;
 
-            if (!showAll && !isVisible) {
+            if (isParentAuthoring || !isVisible) {
               return null;
             }
 
@@ -319,18 +207,11 @@ export default function CaravanFormClient({
               <div
                 key={step.id}
                 className="caravan-form-step"
-                style={authorScrollTargetStyle}
-                data-step={showAll ? undefined : step.id}
-                data-aue-resource={
-                  showAll ? undefined : insuranceJourneyStepResource
-                }
-                data-aue-type={showAll ? undefined : "component"}
-                data-aue-label={showAll ? undefined : `Step ${step.id}`}
-                data-aue-model={
-                  showAll
-                    ? undefined
-                    : INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]
-                }
+                data-step={step.id}
+                data-aue-resource={insuranceJourneyStepResource}
+                data-aue-type="component"
+                data-aue-label={`Step ${step.id}`}
+                data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
               >
                 <h3
                   data-aue-resource={insuranceJourneyStepResource}
@@ -1030,76 +911,13 @@ export default function CaravanFormClient({
               </div>
             );
 
-            if (showAll) {
-              return (
-                <details
-                  key={step.id}
-                  id={`caravan-step-${step.id}`}
-                  className="caravan-author-step-section"
-                  style={authorScrollTargetStyle}
-                  data-step={step.id}
-                  data-aue-resource={insuranceJourneyStepResource}
-                  data-aue-type="component"
-                  // data-aue-type="container"
-                  data-aue-label={`Step ${step.id}`}
-                  data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
-                  open={expandedAuthorStepId === step.id}
-                >
-                  <summary
-                    className="caravan-author-step-label"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setExpandedAuthorStepId((currentStepId) =>
-                        currentStepId === step.id ? null : step.id,
-                      );
-                    }}
-                  >
-                    {`Step ${step.id} of ${totalSteps}: ${step.heading ?? `Step ${step.id}`}`}
-                  </summary>
-                  {stepBlock}
-                </details>
-              );
-            }
-
             return stepBlock;
           })}
 
-          {showAll ? (
-            <section
-              id="caravan-step-confirmation"
-              className="caravan-author-step-section"
-              style={authorScrollTargetStyle}
-              data-step="4"
-              data-aue-resource={step4Resource}
-              data-aue-type="component"
-              data-aue-label="Confirmation message"
-              data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[4]}
-            >
-              <p className="caravan-author-step-label">Confirmation message</p>
-              <div
-                className="caravan-form-step caravan-form-success"
-                data-step="success"
-                style={authorScrollTargetStyle}
-              >
-                <div
-                  data-aue-resource={step4Resource}
-                  data-aue-prop="confirmationMessage"
-                  data-aue-type="richtext"
-                  data-aue-filter="cf"
-                >
-                  {mapJsonRichText(
-                    insuranceJourneyContent?.step4.confirmationMessage?.json,
-                  ) ?? "Congratulations! You have done it!"}
-                </div>
-              </div>
-            </section>
-          ) : null}
-
-          {!showAll && visibleStep === 4 ? (
+          {!isParentAuthoring && visibleStep === 4 ? (
             <div
               className="caravan-form-step caravan-form-success"
               data-step="success"
-              style={authorScrollTargetStyle}
               data-aue-resource={step4Resource}
               data-aue-type="component"
               data-aue-label="Confirmation message"
@@ -1118,7 +936,7 @@ export default function CaravanFormClient({
             </div>
           ) : null}
 
-          {isXfLoading || xfHtmlContent?.length ? (
+          {shouldRenderBottomXfs && (isXfLoading || xfHtmlContent?.length) ? (
             <section
               className="caravan-form-step"
               data-aue-resource={insuranceJourneyResource}
