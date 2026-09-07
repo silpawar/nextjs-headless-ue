@@ -103,6 +103,22 @@ export default function CaravanFormClient({
   }, [isUniversalEditor]);
 
   useEffect(() => {
+    if (authorStep === undefined) {
+      return;
+    }
+
+    const resetPreviewStep = (): void => {
+      setActiveStep(authorStep);
+    };
+
+    document.addEventListener("aue:ui-preview", resetPreviewStep);
+
+    return () => {
+      document.removeEventListener("aue:ui-preview", resetPreviewStep);
+    };
+  }, [authorStep]);
+
+  useEffect(() => {
     if (!hasBottomXfs || htmlContent) {
       return;
     }
