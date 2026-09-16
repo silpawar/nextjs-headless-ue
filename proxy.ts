@@ -2,21 +2,38 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isUniversalEditorRequest } from "./app/lib/universalEditor";
 
+function withUeRequestHeader(request: NextRequest): Headers {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-ue-request", "1");
+  return requestHeaders;
+}
+
 export function proxy(request: NextRequest) {
-  console.log(
-    "Is not Universal Editor Request: ",
-    !isUniversalEditorRequest(request.headers),
-  );
-  if (!isUniversalEditorRequest(request.headers)) {
-    return NextResponse.next();
+  const { pathname } = request.nextUrl;
+  const isUe = isUniversalEditorRequest(request.headers);
+
+  if (pathname.startsWith("/ue") && !isUe) {
+    return new NextResponse(null, { status: 404 });
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = `/ue${url.pathname}`;
+  if (pathname.startsWith("/content") && isUe) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/ue${pathname}`;
 
-  return NextResponse.rewrite(url);
+    return NextResponse.rewrite(url, {
+      request: { headers: withUeRequestHeader(request) },
+    });
+  }
+
+  if (pathname.startsWith("/ue") && isUe) {
+    return NextResponse.next({
+      request: { headers: withUeRequestHeader(request) },
+    });
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: "/content/:path*",
+  matcher: ["/content/:path*", "/ue/:path*"],
 };

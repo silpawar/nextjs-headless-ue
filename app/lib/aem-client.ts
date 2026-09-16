@@ -1,4 +1,5 @@
 import "server-only";
+import { buildAemRequestHeaders } from "./aem-fetch-headers";
 
 const AEM_GRAPHQL_PROJECT = process.env.AEM_GRAPHQL_PROJECT ?? "wknd-shared";
 const PUBLISH_REVALIDATE_SECONDS = Number.parseInt(
@@ -6,20 +7,32 @@ const PUBLISH_REVALIDATE_SECONDS = Number.parseInt(
   10,
 );
 
-export type AemTarget = "publish" | "preview";
+export type AemTarget = "publish" | "preview" | "author";
 
 export type AemRequestOptions = {
   target?: AemTarget;
 };
 
+function isUncachedTarget(target: AemTarget): boolean {
+  return target === "preview" || target === "author";
+}
+
 function resolveBase(target: AemTarget): string {
   const base =
-    target === "preview" ? process.env.AEM_PREVIEW_HOST : process.env.AEM_HOST;
+    target === "author"
+      ? process.env.AEM_AUTHOR_HOST
+      : target === "preview"
+        ? process.env.AEM_PREVIEW_HOST
+        : process.env.AEM_PUBLISH_HOST;
 
   if (!base) {
-    throw new Error(
-      `Missing ${target === "preview" ? "AEM_PREVIEW_HOST" : "AEM_HOST"}.`,
-    );
+    const envName =
+      target === "author"
+        ? "AEM_AUTHOR_HOST"
+        : target === "preview"
+          ? "AEM_PREVIEW_HOST"
+          : "AEM_PUBLISH_HOST";
+    throw new Error(`Missing ${envName}.`);
   }
 
   return base;
@@ -102,12 +115,14 @@ async function fetchFromAEM<T>(
   const url = `${base}/graphql/execute.json/${AEM_GRAPHQL_PROJECT}/${encodeURIComponent(queryName)}${params}`;
   console.log(`Fetching AEM GraphQL query (${target}): URL: ${url}`);
 
+  const requestHeaders = await buildAemRequestHeaders(target, {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  });
+
   const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true",
-    },
-    ...(target === "preview"
+    headers: requestHeaders,
+    ...(isUncachedTarget(target)
       ? { cache: "no-store" as const }
       : {
           next: {
@@ -167,12 +182,14 @@ export async function fetchExperienceFragment(
     ? url.pathname
     : url.pathname.replace(/(?:\.html)?$/, ".plain.html");
 
+  const requestHeaders = await buildAemRequestHeaders(target, {
+    Accept: "text/html",
+    "ngrok-skip-browser-warning": "true",
+  });
+
   const res = await fetch(url, {
-    headers: {
-      Accept: "text/html",
-      "ngrok-skip-browser-warning": "true",
-    },
-    ...(target === "preview"
+    headers: requestHeaders,
+    ...(isUncachedTarget(target)
       ? { cache: "no-store" as const }
       : { next: { revalidate: PUBLISH_REVALIDATE_SECONDS } }),
   });
@@ -184,7 +201,6 @@ export async function fetchExperienceFragment(
     );
   }
 
-  // return res.text();
   return resolveExperienceFragmentAssetUrls(await res.text(), base);
 }
 

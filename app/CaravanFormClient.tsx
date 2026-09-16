@@ -8,6 +8,7 @@ import type {
 import { mapJsonRichText } from "./utils/renderRichText";
 import { useUniversalEditorMode } from "./lib/useUniversalEditorMode";
 import type { AemTarget } from "./lib/aem-client";
+import { resolveBottomXfPaths } from "./lib/resolveBottomXfPaths";
 import {
   INSURANCE_JOURNEY_PARENT_MODEL_ID,
   INSURANCE_JOURNEY_STEP_MODEL_IDS,
@@ -21,6 +22,8 @@ type CaravanFormClientProps = {
   // isEditing?: boolean;
   authorStep?: number;
   aemTarget: AemTarget;
+  /** Set when XFs are fetched during SSR (author / preview). */
+  serverBottomXfHtml?: string[];
 };
 
 const defaultInsuranceJourneyResource =
@@ -33,6 +36,7 @@ export default function CaravanFormClient({
   // isEditing: isEditingProp = false,
   authorStep,
   aemTarget,
+  serverBottomXfHtml,
 }: CaravanFormClientProps) {
   console.log("AEM Target: ", aemTarget);
   // const universalEditorMode = useUniversalEditorMode(isEditingProp);
@@ -70,21 +74,17 @@ export default function CaravanFormClient({
   const insuranceJourneyResource = insuranceJourneyContent?._path
     ? `urn:aemconnection:${insuranceJourneyContent._path}/jcr:content/data/master`
     : defaultInsuranceJourneyResource;
-  const configuredBottomXfPath = insuranceJourneyContent?.bottomXfPath?._path;
-  const bottomXfVariation = insuranceJourneyContent?.bottomXfVariation;
-  const bottomXfPath =
-    configuredBottomXfPath && bottomXfVariation
-      ? `${configuredBottomXfPath}/${bottomXfVariation}`
-      : (configuredBottomXfPath ?? xfPath);
-  const bottomXfPaths =
-    insuranceJourneyContent?.bottomXfContentPicker
-      ?.map(({ _path }) => _path)
-      .filter(Boolean) ?? (bottomXfPath ? [bottomXfPath] : []);
+  const bottomXfPaths = resolveBottomXfPaths(insuranceJourneyData, xfPath);
   const bottomXfPathsKey = JSON.stringify(bottomXfPaths);
   const hasBottomXfs = bottomXfPaths.length > 0;
-  const xfHtmlContent = htmlContent ? [htmlContent] : fetchedXfContent;
+  const xfHtmlContent = htmlContent
+    ? [htmlContent]
+    : (serverBottomXfHtml ?? fetchedXfContent);
   const isXfLoading = Boolean(
-    hasBottomXfs && !htmlContent && !fetchedXfContent,
+    hasBottomXfs &&
+      !htmlContent &&
+      serverBottomXfHtml === undefined &&
+      !fetchedXfContent,
   );
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function CaravanFormClient({
   }, [authorStep]);
 
   useEffect(() => {
-    if (!hasBottomXfs || htmlContent) {
+    if (!hasBottomXfs || htmlContent || serverBottomXfHtml !== undefined) {
       return;
     }
 
@@ -158,7 +158,13 @@ export default function CaravanFormClient({
     return () => {
       ignore = true;
     };
-  }, [aemTarget, bottomXfPathsKey, hasBottomXfs, htmlContent]);
+  }, [
+    aemTarget,
+    bottomXfPathsKey,
+    hasBottomXfs,
+    htmlContent,
+    serverBottomXfHtml,
+  ]);
 
   const steps = [
     {
@@ -973,7 +979,7 @@ export default function CaravanFormClient({
               ) : (
                 xfHtmlContent?.map((html, index) => (
                   <div
-                    key={bottomXfPaths[index] ?? index}
+                    key={`${bottomXfPaths[index] ?? "xf"}-${index}`}
                     dangerouslySetInnerHTML={{ __html: html }}
                   />
                 ))

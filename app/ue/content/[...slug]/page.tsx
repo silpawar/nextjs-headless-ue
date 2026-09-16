@@ -3,6 +3,7 @@ import PageContent from "@/app/PageContent";
 import { resolveContentRoute } from "@/app/lib/contentRoute";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function UniversalEditorContentPage({
   params,
@@ -20,7 +21,7 @@ export default async function UniversalEditorContentPage({
     <PageContent
       config={contentRoute.config}
       authorStep={contentRoute.authorStep}
-      aemTarget="preview"
+      aemTarget="author"
     />
   );
 }

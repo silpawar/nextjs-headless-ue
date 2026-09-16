@@ -1,4 +1,23 @@
+/**
+ * Hostnames allowed as Referer/Origin when the app is embedded in Universal Editor.
+ * - Adobe Experience Cloud: experience.adobe.com
+ * - AEM in-context UE: author-*.adobeaemcloud.com (from AEM_AUTHOR_HOST)
+ */
 const DEFAULT_UE_REFERER_HOSTS = ["experience.adobe.com"];
+
+function hostnameFromEnvUrl(envName: string): string | null {
+  const raw = process.env[envName]?.trim();
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const withProtocol = raw.includes("://") ? raw : `https://${raw}`;
+    return new URL(withProtocol).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
 
 function getAllowedRefererHosts(): string[] {
   const configured = (process.env.UE_ALLOWED_REFERER_HOSTS ?? "")
@@ -6,10 +25,15 @@ function getAllowedRefererHosts(): string[] {
     .map((host) => host.trim().toLowerCase())
     .filter(Boolean);
 
-  console.log("Allowed Referer Hosts: ", [
-    ...new Set([...DEFAULT_UE_REFERER_HOSTS, ...configured]),
-  ]);
-  return [...new Set([...DEFAULT_UE_REFERER_HOSTS, ...configured])];
+  const authorHost = hostnameFromEnvUrl("AEM_AUTHOR_HOST");
+
+  return [
+    ...new Set([
+      ...DEFAULT_UE_REFERER_HOSTS,
+      ...(authorHost ? [authorHost] : []),
+      ...configured,
+    ]),
+  ];
 }
 
 function hostMatches(host: string, allowed: string[]): boolean {
@@ -27,12 +51,7 @@ function refererIsUniversalEditor(referer: string | null): boolean {
 
   try {
     const { hostname } = new URL(referer);
-    console.log("Referer Hostname: ", hostname);
     return hostMatches(hostname, getAllowedRefererHosts());
-    console.log(
-      "Host Matches: ",
-      hostMatches(hostname, getAllowedRefererHosts()),
-    );
   } catch {
     return false;
   }
@@ -40,13 +59,11 @@ function refererIsUniversalEditor(referer: string | null): boolean {
 
 /**
  * Identifies requests embedded by the Universal Editor before route rendering.
- * This is a routing signal only; preview AEM remains a publicly accessible host.
  */
 export function isUniversalEditorRequest(requestHeaders: Headers): boolean {
   const secFetchDest = requestHeaders.get("sec-fetch-dest");
   const referer =
     requestHeaders.get("referer") ?? requestHeaders.get("origin") ?? null;
-  console.log("Referer: ", referer);
 
   return secFetchDest === "iframe" && refererIsUniversalEditor(referer);
 }

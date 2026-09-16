@@ -24,11 +24,20 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 Set these environment variables for local development:
 
-- `AEM_HOST`: your AEM host, for example `https://publish-xxxx.adobeaemcloud.com`
-- `AEM_PREVIEW_HOST`: your AEM preview host, for example `https://preview-xxxx.adobeaemcloud.com`
+- `AEM_PUBLISH_HOST`: your AEM publish host, for example `https://publish-xxxx.adobeaemcloud.com`
+- `AEM_AUTHOR_HOST`: your AEM author host, for example `https://author-xxxx.adobeaemcloud.com` (used when `aemTarget` is `author`, e.g. `/ue/content/*`)
+- **Author IMS (server only)** — copy `.env.example` and set:
+  - `AEM_IMS_ENDPOINT`, `AEM_IMS_CLIENT_ID`, `AEM_IMS_CLIENT_SECRET`, `AEM_IMS_ORG_ID`, `AEM_IMS_TECHNICAL_ACCOUNT_ID`, `AEM_IMS_METASCOPES` (e.g. `ent_aem_cloud_api`)
+  - `AEM_IMS_PRIVATE_KEY` — PEM private key from Developer Console (in `.env`, use `\n` for line breaks inside quotes). Optional fallback: `AEM_IMS_PRIVATE_KEY_PATH`
+  - Ensure the technical account has access to your AEM program; rotate credentials if they are ever committed or shared
+- `AEM_PREVIEW_HOST`: optional preview host if you use a `preview` AEM target elsewhere
 - `AEM_GRAPHQL_PROJECT`: optional, defaults to `wknd-shared`
 - `AEM_REVALIDATE_SECONDS`: optional publish cache lifetime in seconds, defaults to `3600`
-- `UE_ALLOWED_REFERER_HOSTS`: optional comma-separated Universal Editor hosts.
+- `UE_ALLOWED_REFERER_HOSTS`: optional extra comma-separated parent hostnames. `experience.adobe.com` and the hostname from `AEM_AUTHOR_HOST` (AEM in-context UE, e.g. `author-….adobeaemcloud.com`) are always allowed.
+
+### Author / Universal Editor rendering
+
+Routes under `/ue/*` use **SSR per request** (`force-dynamic`, `revalidate = 0`). Author AEM calls use `cache: no-store` and `unstable_noStore()` in `PageContent`. GraphQL and bottom experience fragments are fetched on the server for each request; publish routes may still use static generation and client-side XF loading.
 
 ## Learn More
 

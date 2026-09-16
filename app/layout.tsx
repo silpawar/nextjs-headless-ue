@@ -6,7 +6,7 @@ import { INSURANCE_JOURNEY_MODEL_DEFINITION } from "./lib/universalEditorModels"
 const aueConnection =
   process.env.NEXT_PUBLIC_AEM_CONNECTION ?? process.env.NEXT_PUBLIC_AEM_HOST;
 
-const aem = process.env.AEM_HOST!;
+const aem = process.env.AEM_PUBLISH_HOST!;
 
 export const metadata: Metadata = {
   title: "Create Next App",

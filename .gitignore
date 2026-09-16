@@ -32,6 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# Adobe IMS private key (download from Developer Console)
+/secrets/*
+!secrets/.gitkeep
+!secrets/README.md
 
 # vercel
 .vercel

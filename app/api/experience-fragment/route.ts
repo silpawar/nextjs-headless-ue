@@ -4,8 +4,11 @@ import { fetchExperienceFragment, type AemTarget } from "@/app/lib/aem-client";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const path = searchParams.get("path");
+  const requestedTarget = request.headers.get("x-aem-target");
   const target: AemTarget =
-    request.headers.get("x-aem-target") === "preview" ? "preview" : "publish";
+    requestedTarget === "author" || requestedTarget === "preview"
+      ? requestedTarget
+      : "publish";
 
   if (!path) {
     return NextResponse.json(
@@ -35,9 +38,9 @@ export async function GET(request: Request) {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control":
-          target === "preview"
-            ? "no-store"
-            : "s-maxage=3600, stale-while-revalidate=86400",
+          target === "publish"
+            ? "s-maxage=3600, stale-while-revalidate=86400"
+            : "no-store",
       },
     });
   } catch (error) {
