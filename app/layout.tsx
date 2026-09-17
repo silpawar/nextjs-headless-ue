@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
+import AemFetchSourceBanner from "./components/AemFetchSourceBanner";
+import type { AemTarget } from "./lib/aem-client";
 import { INSURANCE_JOURNEY_MODEL_DEFINITION } from "./lib/universalEditorModels";
 // import { isUniversalEditorRequest } from "./lib/universalEditor";
 
@@ -17,12 +20,32 @@ const universalEditorModelDefinitionJson = JSON.stringify(
   INSURANCE_JOURNEY_MODEL_DEFINITION,
 );
 
-export default function RootLayout({
+function resolveAemTargetFromRequest(
+  requestHeaders: Headers,
+): AemTarget {
+  const explicit = requestHeaders.get("x-aem-target");
+  if (
+    explicit === "author" ||
+    explicit === "preview" ||
+    explicit === "publish"
+  ) {
+    return explicit;
+  }
+
+  if (requestHeaders.get("x-ue-request") === "1") {
+    return "author";
+  }
+
+  return "publish";
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const isUniversalEditor = await isUniversalEditorRequest();
+  const requestHeaders = await headers();
+  const aemTarget = resolveAemTargetFromRequest(requestHeaders);
 
   return (
     <html
@@ -67,6 +90,7 @@ export default function RootLayout({
         className="flex flex-col"
         suppressHydrationWarning
       >
+        <AemFetchSourceBanner aemTarget={aemTarget} />
         {children}
       </body>
     </html>

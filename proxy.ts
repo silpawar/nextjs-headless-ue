@@ -5,6 +5,13 @@ import { isUniversalEditorRequest } from "./app/lib/universalEditor";
 function withUeRequestHeader(request: NextRequest): Headers {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-ue-request", "1");
+  requestHeaders.set("x-aem-target", "author");
+  return requestHeaders;
+}
+
+function withPublishTargetHeader(request: NextRequest): Headers {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-aem-target", "publish");
   return requestHeaders;
 }
 
@@ -28,6 +35,12 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith("/ue") && isUe) {
     return NextResponse.next({
       request: { headers: withUeRequestHeader(request) },
+    });
+  }
+
+  if (pathname.startsWith("/content")) {
+    return NextResponse.next({
+      request: { headers: withPublishTargetHeader(request) },
     });
   }
 

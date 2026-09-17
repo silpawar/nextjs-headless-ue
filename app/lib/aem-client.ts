@@ -17,6 +17,10 @@ function isUncachedTarget(target: AemTarget): boolean {
   return target === "preview" || target === "author";
 }
 
+export function getAemBaseUrl(target: AemTarget = "publish"): string {
+  return resolveBase(target);
+}
+
 function resolveBase(target: AemTarget): string {
   const base =
     target === "author"
