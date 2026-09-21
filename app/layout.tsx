@@ -59,6 +59,10 @@ export default function RootLayout({
           }}
         />
         <meta name="test" content={`aem:${aem}`} />
+        <meta
+          name="urn:adobe:aue:config:preview"
+          content="https://wknd.site/api/draft?token=test"
+        />
       </head>
       <body
         // className={
