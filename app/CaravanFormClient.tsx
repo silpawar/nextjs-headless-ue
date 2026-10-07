@@ -244,6 +244,7 @@ export default function CaravanFormClient({
                         data-aue-resource={insuranceJourneyStepResource}
                         data-aue-type="text"
                         data-aue-prop="yearDropdownLabel"
+                        data-aue-label="Year Dropdown Label"
                         data-aue-filter="cf"
                       >
                         {insuranceJourneyContent?.step1.yearDropdownLabel}
@@ -508,7 +509,13 @@ export default function CaravanFormClient({
                             className="caravan-choice-indicator"
                             aria-hidden="true"
                           />
-                          <span className="caravan-choice-copy">
+                          <span
+                            className="caravan-choice-copy"
+                            data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
+                            data-aue-type="component"
+                            data-aue-prop="Residential Checkbox"
+                            data-aue-filter="cf"
+                          >
                             <strong
                               data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                               data-aue-type="text"
