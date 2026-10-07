@@ -513,7 +513,7 @@ export default function CaravanFormClient({
                             className="caravan-choice-copy"
                             data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                             data-aue-type="component"
-                            data-aue-prop="Residential Checkbox"
+                            data-aue-label="Residential Checkbox"
                             data-aue-filter="cf"
                           >
                             <strong
@@ -777,7 +777,13 @@ export default function CaravanFormClient({
                     </section>
 
                     <section className="caravan-usage-panel caravan-usage-panel-compact">
-                      <div className="caravan-usage-section-header caravan-usage-section-header-compact">
+                      <div
+                        className="caravan-usage-section-header caravan-usage-section-header-compact"
+                        data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                        data-aue-type="reference"
+                        data-aue-label="Will You Park Caravan For Extended Time Question"
+                        data-aue-filter="cf"
+                      >
                         <p
                           className="caravan-usage-question"
                           data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
