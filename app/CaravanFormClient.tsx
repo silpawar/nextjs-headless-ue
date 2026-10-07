@@ -776,14 +776,14 @@ export default function CaravanFormClient({
                       </div>
                     </section>
 
-                    <section className="caravan-usage-panel caravan-usage-panel-compact">
-                      <div
-                        className="caravan-usage-section-header caravan-usage-section-header-compact"
-                        data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
-                        data-aue-type="reference"
-                        data-aue-label="Will You Park Caravan For Extended Time Question"
-                        data-aue-filter="cf"
-                      >
+                    <section
+                      className="caravan-usage-panel caravan-usage-panel-compact"
+                      data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
+                      data-aue-type="container"
+                      data-aue-label="Will You Park Caravan For Extended Time Question"
+                      data-aue-filter="cf"
+                    >
+                      <div className="caravan-usage-section-header caravan-usage-section-header-compact">
                         <p
                           className="caravan-usage-question"
                           data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.willYouParkCaravanForExtendedTimeQuestion?._path}/jcr:content/data/master`}
