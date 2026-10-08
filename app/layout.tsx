@@ -32,6 +32,10 @@ function resolveAemTargetFromRequest(
     return explicit;
   }
 
+  if (requestHeaders.get("x-preview-request") === "1") {
+    return "preview";
+  }
+
   if (requestHeaders.get("x-ue-request") === "1") {
     return "author";
   }

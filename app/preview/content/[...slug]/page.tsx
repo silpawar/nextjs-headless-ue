@@ -1,21 +1,11 @@
 import { notFound } from "next/navigation";
 import PageContent from "@/app/PageContent";
 import { resolveContentRoute } from "@/app/lib/contentRoute";
-import { getPageContentPaths } from "@/app/lib/pageContent";
 
-export function generateStaticParams(): Array<{ slug: string[] }> {
-  return getPageContentPaths().flatMap((pagePath) => {
-    const slug = pagePath.replace(/^\/content\//, "").split("/");
-    return [
-      { slug },
-      ...[1, 2, 3, 4].map((step) => ({
-        slug: [...slug, `step-${step}`],
-      })),
-    ];
-  });
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default async function ContentPage({
+export default async function PreviewContentPage({
   params,
 }: {
   params: Promise<{ slug: string[] }>;
@@ -31,6 +21,7 @@ export default async function ContentPage({
     <PageContent
       config={contentRoute.config}
       authorStep={contentRoute.authorStep}
+      aemTarget="preview"
       appPathname={`/content/${slug.join("/")}`}
     />
   );

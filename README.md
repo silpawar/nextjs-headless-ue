@@ -30,14 +30,22 @@ Set these environment variables for local development:
   - `AEM_IMS_ENDPOINT`, `AEM_IMS_CLIENT_ID`, `AEM_IMS_CLIENT_SECRET`, `AEM_IMS_ORG_ID`, `AEM_IMS_TECHNICAL_ACCOUNT_ID`, `AEM_IMS_METASCOPES` (e.g. `ent_aem_cloud_api`)
   - `AEM_IMS_PRIVATE_KEY` — PEM private key from Developer Console (in `.env`, use `\n` for line breaks inside quotes). Optional fallback: `AEM_IMS_PRIVATE_KEY_PATH`
   - Ensure the technical account has access to your AEM program; rotate credentials if they are ever committed or shared
-- `AEM_PREVIEW_HOST`: optional preview host if you use a `preview` AEM target elsewhere
+- `AEM_PREVIEW_HOST`: AEM preview tier (used by `/preview/*`, SSR per request)
 - `AEM_GRAPHQL_PROJECT`: optional, defaults to `wknd-shared`
 - `AEM_REVALIDATE_SECONDS`: optional publish cache lifetime in seconds, defaults to `3600`
 - `UE_ALLOWED_REFERER_HOSTS`: optional extra comma-separated parent hostnames. `experience.adobe.com` and the hostname from `AEM_AUTHOR_HOST` (AEM in-context UE, e.g. `author-….adobeaemcloud.com`) are always allowed.
 
-### Author / Universal Editor rendering
+### Preview and Universal Editor rendering
 
-Routes under `/ue/*` use **SSR per request** (`force-dynamic`, `revalidate = 0`). Author AEM calls use `cache: no-store` and `unstable_noStore()` in `PageContent`. GraphQL and bottom experience fragments are fetched on the server for each request; publish routes may still use static generation and client-side XF loading.
+| Route prefix | AEM host | Rendering |
+|--------------|----------|-------------|
+| `/content/*` (public) | Publish | Static / ISR where configured |
+| `/preview/*` | Preview (`AEM_PREVIEW_HOST`) | Public URL; SSR per request; no IMS; no UE gate |
+| `/ue/*` (UE only) | Author (`AEM_AUTHOR_HOST`) | SSR per request; IMS JWT; 404 outside UE iframe |
+
+Example preview URL (same slug as publish): `/preview/content/wknd/language-masters/en/caravan`
+
+Routes under `/preview/*` and `/ue/*` use **SSR per request** (`force-dynamic`, `revalidate = 0`). Preview and author AEM calls use `cache: no-store` and `unstable_noStore()` in `PageContent`. GraphQL and bottom experience fragments are fetched on the server for each request on those paths.
 
 ## Learn More
 

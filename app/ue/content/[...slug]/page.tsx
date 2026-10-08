@@ -22,6 +22,7 @@ export default async function UniversalEditorContentPage({
       config={contentRoute.config}
       authorStep={contentRoute.authorStep}
       aemTarget="author"
+      appPathname={`/content/${slug.join("/")}`}
     />
   );
 }
