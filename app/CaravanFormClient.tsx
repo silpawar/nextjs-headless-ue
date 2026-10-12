@@ -225,15 +225,15 @@ export default function CaravanFormClient({
                 className="caravan-form-step"
                 data-step={step.id}
                 data-aue-resource={insuranceJourneyStepResource}
-                data-aue-type="component"
+                data-aue-type="container"
                 data-aue-label={`Step ${step.id}`}
-                data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
+                // data-aue-model={INSURANCE_JOURNEY_STEP_MODEL_IDS[step.id]}
               >
                 <h3
                   data-aue-resource={insuranceJourneyStepResource}
                   data-aue-type="text"
                   data-aue-prop={step.headingProp}
-                  data-aue-filter="cf"
+                  // data-aue-filter="cf"
                 >
                   {step.heading}
                 </h3>
