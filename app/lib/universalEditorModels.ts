@@ -20,7 +20,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
       {
         component: "aem-content",
         label: "Image",
-        name: "image",
+        name: "checkboxOptionImage",
         valueType: "string",
         validation: {
           rootPath: "/content/dam/wknd-shared",
