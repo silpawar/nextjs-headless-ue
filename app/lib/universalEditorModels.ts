@@ -1,6 +1,33 @@
 export const INSURANCE_JOURNEY_PARENT_MODEL_ID = "insurance-journey-parent";
+export const RESIDENTIAL_CHECKBOX_MODEL_ID = "residential-checkbox";
 
 export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
+  {
+    id: RESIDENTIAL_CHECKBOX_MODEL_ID,
+    fields: [
+      {
+        component: "text",
+        label: "Label",
+        name: "label",
+        valueType: "string",
+      },
+      {
+        component: "text",
+        label: "Bottom Text",
+        name: "bottomText",
+        valueType: "string",
+      },
+      {
+        component: "aem-content",
+        label: "Image",
+        name: "image",
+        valueType: "string",
+        validation: {
+          rootPath: "/content/dam/wknd-shared",
+        },
+      },
+    ],
+  },
   {
     id: INSURANCE_JOURNEY_PARENT_MODEL_ID,
     fields: [

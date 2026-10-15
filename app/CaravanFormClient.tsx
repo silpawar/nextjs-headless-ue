@@ -11,6 +11,7 @@ import type { AemTarget } from "./lib/aem-client";
 import {
   INSURANCE_JOURNEY_PARENT_MODEL_ID,
   INSURANCE_JOURNEY_STEP_MODEL_IDS,
+  RESIDENTIAL_CHECKBOX_MODEL_ID,
 } from "./lib/universalEditorModels";
 
 type CaravanFormClientProps = {
@@ -514,6 +515,7 @@ export default function CaravanFormClient({
                             data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                             data-aue-type="component"
                             data-aue-label="Residential Checkbox"
+                            data-aue-model={RESIDENTIAL_CHECKBOX_MODEL_ID}
                             data-aue-filter="cf"
                           >
                             <strong
