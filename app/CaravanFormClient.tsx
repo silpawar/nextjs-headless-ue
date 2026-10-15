@@ -522,6 +522,7 @@ export default function CaravanFormClient({
                               data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
                               data-aue-type="text"
                               data-aue-prop="label"
+                              data-aue-model={RESIDENTIAL_CHECKBOX_MODEL_ID}
                               data-aue-filter="cf"
                             >
                               {
