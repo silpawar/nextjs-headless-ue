@@ -125,6 +125,7 @@ export interface CheckboxOption {
   key: string;
   label: string;
   bottomText: string;
+  checkboxOptionImage?: PageRef;
 }
 
 export interface YesNoRadioButtonQuestion {

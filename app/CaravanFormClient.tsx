@@ -491,6 +491,7 @@ export default function CaravanFormClient({
                           data-aue-resource={insuranceJourneyStepResource}
                           data-aue-type="text"
                           data-aue-prop="howDoYouUseYourCaravanLabel"
+                          data-aue-label="How Do You Use Your Caravan Label"
                           data-aue-filter="cf"
                         >
                           {
@@ -504,7 +505,7 @@ export default function CaravanFormClient({
                       </div>
 
                       <div className="caravan-usage-grid caravan-usage-grid-four">
-                        <label className="caravan-choice-card">
+                        <label className="caravan-choice-card caravan-choice-card-with-media">
                           <input type="radio" name="usageType" />
                           <span
                             className="caravan-choice-indicator"
@@ -542,6 +543,20 @@ export default function CaravanFormClient({
                               }
                             </small>
                           </span>
+                          <img
+                            className="caravan-choice-media"
+                            src={
+                              insuranceJourneyContent?.step3
+                                ?.residentialCheckbox?.checkboxOptionImage
+                                ?._publishUrl
+                            }
+                            alt=""
+                            data-aue-resource={`urn:aemconnection:${insuranceJourneyContent?.step3?.residentialCheckbox?._path}/jcr:content/data/master`}
+                            data-aue-type="media"
+                            data-aue-prop="checkboxOptionImage"
+                            data-aue-model={RESIDENTIAL_CHECKBOX_MODEL_ID}
+                            data-aue-filter="cf"
+                          />
                         </label>
 
                         <label className="caravan-choice-card">

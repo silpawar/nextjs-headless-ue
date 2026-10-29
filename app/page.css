@@ -358,6 +358,10 @@
   cursor: pointer;
 }
 
+.caravan-choice-card-with-media {
+  grid-template-columns: 18px minmax(0, 1fr) 64px;
+}
+
 .caravan-choice-card input {
   position: absolute;
   opacity: 0;
@@ -386,6 +390,14 @@
     font-size: 0.95rem;
     color: #7a7f89;
   }
+}
+
+.caravan-choice-media {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background: #f1f3f5;
+  object-fit: cover;
 }
 
 .caravan-choice-card-selected {
