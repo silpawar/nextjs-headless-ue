@@ -18,7 +18,7 @@ export const INSURANCE_JOURNEY_MODEL_DEFINITION = [
         valueType: "string",
       },
       {
-        component: "aem-content",
+        component: "reference",
         label: "Image",
         name: "checkboxOptionImage",
         valueType: "string",
